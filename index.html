@@ -1,0 +1,2889 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Multi Music Tool</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+            background-color: #222222;
+
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+<script type="text/javascript" src="common/js/Cindy.js"></script>
+<script type="text/javascript" src="common/js/CindyGL.js"></script>
+  <!--script type="text/javascript" src="http://science-to-touch.com/Music/sound/apps/common/js/Cindy.js"></script-->
+
+<script id="csinit" type="text/x-cindyscript">
+info=false;
+lang=0;
+lang(a,b):=if(lang==0,a,b);
+setlang():=(
+   if(lang==0,buttonsx=buttonsde);
+   if(lang==1,buttonsx=buttonsen);
+
+   apply(1..length(buttons),i,
+     apply(1..length(buttons_i),j,
+       buttons_i_j_2=buttonsx_i_j_2
+     )
+   );
+);
+activelines=[];
+notesoflines=zerovector(30);
+//....TOP LEVEL UI
+
+freenotes=[];
+apply(0..23,w=#*360°/24*14;
+if(#>11,w=w+360°/24*7);
+//pt=createpoint("FREE"+#,(cos(w),sin(w))+(-2,6));
+
+pt=parse("FREE"+#);
+pt.xy=(cos(w),sin(w))+(0,5);
+pt.labelled=false;
+pt.color=(1,1,1);
+pt.size=14;
+freenotes=freenotes++[pt];
+
+);
+
+fingerstotonnetz=apply(1..20,[]);
+
+fingerstokeys=apply(1..20,-99);
+fingerstofreqs=apply(1..20,-99);
+
+timbreselected=false;
+tuningselected=false;
+analyseselected=false;
+timbrebuttonpos=(-9.5,9);
+tuningbuttonpos=(-15.5,9);
+analysebuttonpos=(-12.5,9);
+mainiconextend=2.5;
+
+timbrebox=[
+  [15.5,4.5],
+  [-2,4.5],
+  [-2,11.5],
+  [15.5,11.5]
+];
+
+
+tuningbox2=[
+  [-15.5,1],
+  [14.5,1],
+  [14.5,11.5],
+  [-6,11.5],
+  [-6,8.5],
+  [-15.5,8.5]
+];
+
+
+tuningbox=[
+  [-15.5,1],
+  [-8,1],
+  [-8,8.5],
+  [-15.5,8.5]
+];
+
+
+tuningboxsm=[
+  [-5.5,8.5],
+  [9,8.5],
+  [9,6.5],
+  [-5.5,6.5]
+];
+
+analyserbox=[
+  [-15.5,3.3],
+  [-10.3,3.3],
+  [-10.3,8.5],
+  [-15.5,8.5]
+];
+
+
+//....BUTTONS
+
+buttonsde=[
+  [//TIMBRE
+   [(-1.5,10),"sineTimbreIcon_"],
+   [(-1.5,8.7),"pulseTimbreIcon_"],
+   [(-1.5,7.4),"sawTimbreIcon_"],
+   [(-1.5,6.1),"squareTimbreIcon_"],
+   [(-1.5,4.8),"triangleTimbreIcon_"],
+   [(1.5,10),"pickTimbreIcon_"],
+   [(1.5,8.5),"dampTimbreIcon_"],
+   [(1.5,7),"holdTimbreIcon_"]
+  ],
+  [//TUNING
+
+
+   [(-5.5,8.7),"westernIcon_Westlich"],
+   [(-3,8.7),"indianIcon_Raga, Indien"],
+   [(-.5,8.7),"gamelanIcon_Gamelan, Bali"],
+   [(2,8.7),"spiralIcon_Skalentheorie"],
+   [(4.5,8.7),"freeScaleIcon_Frei"],
+
+   [(-14.5,6),"gleichstufig"],
+   [(-14.5,5),"pythagoräisch"],
+   [(-14.5,4),"rein"],
+   [(-14.5,3),"mitteltönig"],
+
+   [(7.5,10),"Basant Bukhari"],
+   [(10.5,10),"Bairagi"],
+   [(7.5,9),"Madhukauns"],
+   [(10.5,9),"Miya-Malhar"],
+
+   [(-3,6),"Pelog: Selisir"],
+   [(-3,5),"Pelog: Tembung"],
+   [(-3,4),"Pelog: Sunaren"],
+   [(-3,3),"Pelog: Baro"],
+   [(-3,2),"Pelog: Lebeng"],
+   [(2,6),"Slendro"]
+
+
+
+
+  ],
+  [//ANALYSE
+   [(-12.9,6),"dissonanceIcon_Dissonanz"],
+   [(-12.9,3.6),"ratiosIcon_Verhältnisse"],
+   [(-15.3,3.6),"lissajousIcon_Lissajous"],
+  // [(-12.9,1.2),"fifthIcon_Quintenzirkel"],
+   [(-15.3,6.0),"waveformIcon_Wellenform"],
+
+  // [(-12.9,3.6),"tonnetzIcon_Tonnetz"]//,
+  // [(-10.5,3.6),"spiralIcon_Skalen"]
+  ]
+];
+
+
+
+buttonsen=[
+  [//TIMBRE
+   [(-1.5,10),"sineTimbreIcon_"],
+   [(-1.5,8.7),"pulseTimbreIcon_"],
+   [(-1.5,7.4),"sawTimbreIcon_"],
+   [(-1.5,6.1),"squareTimbreIcon_"],
+   [(-1.5,4.8),"triangleTimbreIcon_"],
+   [(1.5,10),"pickTimbreIcon_"],
+   [(1.5,8.5),"dampTimbreIcon_"],
+   [(1.5,7),"holdTimbreIcon_"]
+  ],
+  [//TUNING
+
+
+   [(-5.5,8.7),"westernIcon_western"],
+   [(-3,8.7),"indianIcon_Raga, India"],
+   [(-.5,8.7),"gamelanIcon_Gamelan, Bali"],
+   [(2,8.7),"spiralIcon_scale theory"],
+   [(4.5,8.7),"freeScaleIcon_free"],
+
+   [(-14.5,6),"equal tempered"],
+   [(-14.5,5),"pythagorean"],
+   [(-14.5,4),"just tuning"],
+   [(-14.5,3),"meantone"],
+
+   [(7.5,10),"Basant Bukhari"],
+   [(10.5,10),"Bairagi"],
+   [(7.5,9),"Madhukauns"],
+   [(10.5,9),"Miya-Malhar"],
+
+   [(-3,6),"Pelog: Selisir"],
+   [(-3,5),"Pelog: Tembung"],
+   [(-3,4),"Pelog: Sunaren"],
+   [(-3,3),"Pelog: Baro"],
+   [(-3,2),"Pelog: Lebeng"],
+   [(2,6),"Slendro"]
+
+  ],
+  [//ANALYSE
+   [(-12.9,6),"dissonanceIcon_dissonance"],
+   [(-12.9,3.6),"ratiosIcon_ratios"],
+   [(-15.3,3.6),"lissajousIcon_Lissajous"],
+  // [(-12.9,1.2),"fifthIcon_circle of fifth"],
+   [(-15.3,6.0),"waveformIcon_waved"],
+
+  // [(-12.9,3.6),"tonnetzIcon_tone net"]//,
+  // [(-10.5,3.6),"spiralIcon_scales"]
+  ]
+];
+
+
+buttons=buttonsde;
+
+timbre1=[1,0,0,0,0,0,0,0];
+phases1=[0,0,0,0,0,0,0,0];
+timbre2=[1,1,1,1,1,1,1,1]*.7;
+phases2=[1,1,1,1,1,1,1,1]*pi/2;
+timbre3=[1,1/2,1/3,1/4,1/5,1/6,1/7,1/8];
+phases3=[0,0,0,0,0,0,0,0];
+timbre4=[1,0,1/3,0,1/5,0,1/7,0];
+phases4=[0,0,0,0,0,0,0,0];
+timbre5=[1,0,1/9,0,1/25,0,1/49,0];
+phases5=[0,0,1,0,0,0,1,0]*pi;
+
+buttonwidth=1.1;
+apply(1..length(buttons),i,
+  apply(1..length(buttons_i),j,b=buttons_i_j;
+    tok=tokenize(buttons_i_j_2,"_");
+    if(length(tok)==2,
+      asp=(1,1);//TODO QUICKHACK WORKAROUND
+      if(i==1,asp=(2,1);buttonwidth=2.5;buttonwidth=2.3;);
+      box=[b_1,b_1+(buttonwidth,0),b_1+(buttonwidth,buttonwidth*asp_2/asp_1),b_1+(0,buttonwidth*asp_2/asp_1)];
+    ,
+      box=[b_1,b_1+(3,0),b_1+(3,.8),b_1+(0,0.8)];
+    );  
+    buttons_i_j=buttons_i_j++[box,false]; 
+  );  
+);
+
+buttons_1_3_4=true;
+buttons_2_1_4=true;
+buttons_3_1_4=true;
+buttons_1_7_4=true;
+buttons_2_6_4=true;//Gleichstufig
+buttons_2_10_4=true;//Indie1
+buttons_2_19_4=true;//Indie1
+
+analyser="dissonance";
+//....ANALYSER
+playanimation();
+setanalysetype(t):=(
+  analysetype=t;
+);
+
+setanalysetype("dissonance");
+
+
+setanalyser(a):=(
+//   stopanimation();
+   analyser=a;
+   if(a=="wave",playanimation();timestamp=seconds();oldsh=0;);
+   if(a=="lissajous",playanimation();timestamp=seconds();ta=0;tb=0;tadamp=0;tbdamp=0;);
+
+);
+
+
+//....TUNING
+
+settuningtype(t):=(
+    tuningtype=t;
+    if(t=="western",
+       tuningdock=(buttons_2_1_3_1+buttons_2_1_3_3)/2;
+    );
+    if(t=="indian",
+           tuningdock=(buttons_2_2_3_1+buttons_2_2_3_3)/2;
+    );
+    if(t=="gamelan",
+           tuningdock=(buttons_2_3_3_1+buttons_2_3_3_3)/2;
+    );
+    if(t=="theory",
+           tuningdock=(buttons_2_4_3_1+buttons_2_4_3_3)/2;
+    );
+    if(t=="free",
+           tuningdock=(buttons_2_5_3_1+buttons_2_5_3_3)/2;
+    );
+);
+
+settuningtype("western");
+
+//....TIMBRE
+
+grabequi=apply(1..20,-1);
+settimbre(timbre3);
+setphases(phases3);
+
+setphases(p):=(phases=p);
+
+settimbre(t):=(
+timbre=t;
+apply(1..8,
+  (reg_#).y=(base_#).y+timbre_#*((top_#).y-(base_#).y);
+  );
+);
+
+
+setdampinghold():=(tonedamping=.0001;toneduration=100;tonehold=true);
+setdampingdamp():=(tonedamping=3;toneduration=3;tonehold=false);
+setdampingpick():=(tonedamping=20;toneduration=1;tonehold=false);
+setdampingdamp();
+
+
+//....TUNING
+
+tuning=apply(0..11,(2^(1/12))^#);
+
+
+
+///....classical tuning
+tuningequal=apply(0..11,(2^(1/12))^#);
+
+
+tuningjust=(1,16/15,9/8,6/5,5/4,4/3,45/32,3/2,8/5,5/3,16/9,15/8);
+
+tuningpyth=(1,(2/3)^5*8,(3/2)^2/2,(2/3)^3*4,(3/2)^4/4,4/3,(3/2)^6/8,3/2,(2/3)^4*8,(3/2)^3/2,(2/3)^2*4,(3/2)^5/4);
+kk=81/80;
+
+tuningmittel=(729/64/(kk^(3/2))/8,2187/128/(kk^(7/4))/16,25/16,8/27*kk^(3/4)*4,4/9*kk^(1/2)*4,2/3*kk^(1/4)*2,1,3/2/(kk^(1/4)),9/4/(kk^(1/2))/2,27/8/(kk^(3/4))/2,5/4,243/32/(kk^(5/4))/4,729/64/(kk^(3/2))/8)_(7,2,9,4,11,6,1,8,3,10,5,12);
+
+///....indian tuning
+
+//     1 2       3     4    5   6     7   8   9     10  11    12    13      14  15     16  17  18    19   20  21   22 
+//     S,r1,     r2,   R1,  R2, g1,   g2, G1, G2,   M1, M2,   m1,   m2,     P,  d1,    d2, D1, D2,   n1,  n2, N1,  N2,     S
+indie=(1,256/243,16/15,10/9,9/8,32/27,6/5,5/4,81/64,4/3,27/20,45/32,729/512,3/2,128/81,8/5,5/3,27/16,16/9,9/5,15/8,243/128,2);
+
+
+ragabase="1.    Adana (R:P) _ S, R2, g1, M1, P, d1, n1
+2.    Ahir-Bhairav (M:S) _ S, r1, G1, M1, P, D1, n1
+3.    Bageshree (M:S) _ S, R1, g1, M1, P, D1, n1
+4.    Bahar (M:S) _ S, R1, g1, M1, P, D1, n1, N1
+5.    Bairagi (M:S) _ S, r1, M1, P, n1
+6.    Basant (S:M) _ S, r1, G1, M1, m1, P, d1, N1
+7.    Basant Bukhari (P:S) _ S, r1, G1, M1, P, d1, n1
+8.    Bhairav (d:r) _ S, r1, G1, M1, P, d1, N1
+9.    Bhairavi (S:M) _ S, r2, R2, g2, G1, M1, m2, P, d2, D2, n2, N1
+10.   Bhatiyar (M:S) _ S, r1, G1, M1, m1, P, D1, N1
+11.   Bheemapalas (M:S) _ S, R1, g1, M1, P, D1, n1
+12.   Bhupal Todi (d:g) _ S, r1, g1, P, d1
+13.   Bihag (G:N) _ S, R1, G, M1, P, D1, N1
+14.   Bilaskhani Todi (d:g) _ S, r2, g2, M1, P, d2, n1
+15.   Bilawal (D:G) _ S, R1, G1, P, D1, n1, N1
+16.   Bhoop (G:D) _ S, R1, G1, P, D1
+17.   Brindavani Sarang (R:P) _ S, R2, M1, P, n1, N1
+18.   Champakali (S:P) _ S, R2, G1, m1, P, D2, n2
+19.   Chandrakauns (M:S) _ S, g1, M1, d1, N1
+20.   Charukeshi (M:S) _ S, R1, G1, M1, P, d1, n1
+21.   Chhayanat (P:R) _ S, R2, G1, M1, P, D2, n1
+22.   Darabari Kanada (R:P) _ S, R2, g1, M1, P, d1, n1
+23.   Des (R:P) _ S, R2, (G1), M1, P, D2, n2, N1
+24.   Deshakar (D:G) _ S, R2, G2, P, D2
+25.   Dhani (g:n) _ S, (R2), g2, M1, P, n2
+26.   Durga (M:S) _ S, R1, M1, P, D1
+27.   Hameer (D:G) _ S, R1, G1, M, P, D1, N1
+28.   Hansadhvani (S:P) _ S, R2, G1, P, N1
+29.   Hindol (D:G) _ S, G1, m1, D1, (N1)
+30.   Gaud Malhar (M:S) _ S, R1, G1, M1, P, D1, N1
+31.   Gorakh Kalyan (M:S) _ S, R1, M1, (P), D1, n1
+32.   Gujari Todi (d:r) _ S, r1, g1, m1, d1, N1
+33.   Gunakauns (M:S) _ S, R1, G1, M1, P, d1, n1
+34.   Gunakri (d:r) _ S, r2, M1, P, d2
+35.   Jana-Sammohini (S:P) _ S, R2, G1, P, D1, n1
+36.   Jayajayavanti (R:P) _ S, R2, g1, G1, M1, P, D2, n2, N1
+37.   Jog (S:P) _ S, g1, G1, M1, P, n1, N1
+38.   Jogiya (M:S) _ S, r2, G1, M1, P, d2, N1
+39.   Jogkauns (M:S) _ S, g1, G1, M1, P, d1, N1
+40.   Jounpuri (d:g) _ S, R2, g2, M2, P, d2, n2
+41.   Kafi (P:S) _ S, R2, g2, M1, P, D2, n2
+42.   Kaishikiranjani (M:S) _ S, R1, G1, P, D, n1
+43.   Kalavati (P:S) _ S, G1, P, D1, n1
+44.   Kalingada (P:r) _ S, r2, G1, M1, P, d2, N1
+45.   Kamod (P:R) _ S, R2, G1, (m1), P, D2, N1
+46.   Kedar (M:S) _ S, R2, (G1), M1, m1, P, D1, N1
+47.   Khamaj (G:N) _ S, R1, G1, M, P, D1, n1
+48.   Kirwani (R:P) _ S, R2, g1, M1, P, d1, N1
+49.   Lalat (M:S) _ S, r1, G1, M1, m1, P, d1, N1
+50.   Madhukauns (P:S) _ S, g1, g2, m2, P, n2
+51.   Madhuvanti (P:S) _ S, R2, g2, m1, P, D2, N1
+52.   Malakauns (M:S) _ S, g1, M1, d1, n1
+53.   Maru Bihag (G:N) _ S, R1, G1, m1, P, D1, N1
+54.   Marwa (r:D) _ S, r1, G2, m1, D2, N2
+55.   Miya-Malhar (M:S) _ S, R2, g1, M1, P, D1, n1, N1
+56.   Multani (P:S) _ S, r1, g2, m1, P, d2, N1
+57.   Nand (S:P) _ S, R2, G1, M1, P, D2, N1
+58.   Nayaki Kanada (M:S) _ S, R2, g1, M1, P, n1
+59.   Paraj (S:M) _ S, r2, G1, M1, m1, P, d2, N1
+60.   Patadeep (P:S) _ S, R1, g1, M1, P, D1, N1
+61.   Poorvi (G:N) _ S, r1, G1, M1, m1, P, d1, N1
+62.   Puriya (G:N) _ S, r1, G1, m1, d1, N1
+63.   Puriya-Dhanashree (P:r) _ S, r1, G1, m1, P, d1, N1
+64.   Puriya Kalyan (r:d) _ S, r1, G1, m1, P, D1, N1
+65.   Rageshree (G:n) _ S, R1, G1, M1, P, D1, n1
+66.   Ramakali (P:r) _ S, r1, G1, M1, m1, P, d1, n1, N1
+67.   Salagavarali (P:S) _ S, r2, g2, P, D2, n2
+68.   Saraswati (P:R) _ S, R2, m1, P, D2, n2
+69.   Shankara (G:N) _ S, (R1), G1, P, (D1), N1
+70.   Shivaranjani (P:S) _ S, R2, g2, P, D2
+71.   Shree (r:P) _ S, r2, G1, m2, P, d2, N2
+72.   Shuddha Kalyan (G:D) _ S, R1, G1, P, D1
+73.   Shuddha Sarang (R:P) _ S, R2, M1, m1, P, n1, N1
+74.   Shyam-Kalyan (S:M) _ S, R2, G1, M1, m1, P, D2, n1
+75.   Sohani (D:G) _ S, r1, G1, m1, d1, N1
+76.   Sur Malhar (M:S) _ S, R2, M1, P, D1, n1
+77.   Tilak-Kamod (R:P) _ S, R2, G1, M1, P, D1, N1
+78.   Tilang (G:N) _ S, (R1), G1, M1, P, n1, N1
+79.   Todi (d:g) _ S, r1, g1, m1, P, d1, N1
+80.   Yaman (G:N) _ S, R2, G1, M1, P, D1, N1
+81.   Zinjhoti (G:N) _ S, R1, G1, M1, P, D1, N1";
+tokenizeXXX(a,b):=(
+poss=[0]++select(1..length(a),a_#==b)++[length(a)+1];
+erg=apply(1..(length(poss)), substring(a,poss_#,poss_(#+1)-1));
+erg;
+);
+
+ragas=(tokenize(ragabase,"
+"));
+shrutis="S,r1,r2,R1,R2,g1,g2,G1,G2,M1,M2,m1,m2,P,d1,d2,D1,D2,n1,n2,N1,N2,S'";
+
+shrnames=tokenize(shrutis,",");
+
+up():=(
+  if(ragai<81,ragai=ragai+1);
+  setspecialtuning(presentraga(ragai));
+);
+down():=(
+  if(ragai>1,ragai=ragai-1);
+  setspecialtuning(presentraga(ragai));
+);
+
+presentraga(i):=(
+ragai=i;
+
+  toks=tokenize(ragas_i,"_");
+  raganame=toks_1;
+  rag=toks_2;
+  tuneraga(rag);
+);
+
+shrutis="S,r1,r2,R1,R2,g1,g2,G1,G2,M1,M2,m1,m2,P,d1,d2,D1,D2,n1,n2,N1,N2,S'";
+
+tuneraga(str):=(
+   shrsel=apply(1..23,false);
+   apply(1..22,i,shrsel_i=(indexof(str,shrnames_i)!=0));
+   shrsel_23=shrsel_1; 
+   tuneragasel();
+);
+
+tuneragasel():=(
+   sels=select(1..22,shrsel_#);
+   org=indie_sels;
+   apply(org,log(#)/log(2));
+ );
+ragai=7;
+
+
+
+//Pelog: Selisir
+gamelan1=[1,1.0861,1.1837,1.3867,1.4768,1.5883,1.7563]_[1,2,3,5,6];
+gamelan1=apply(gamelan1,log(#)/log(2));
+
+//Pelog: Tembung
+gamelan2=[1,1.0861,1.1837,1.3867,1.4768,1.5883,1.7563]_[1,2,4,5,6];
+gamelan2=apply(gamelan2,log(#)/log(2));
+
+//Pelog: Sunaren
+gamelan3=[1,1.0861,1.1837,1.3867,1.4768,1.5883,1.7563]_[3,4,5,6,7];
+gamelan3=apply(gamelan3,log(#)/log(2));
+
+
+//Pelog: Baro
+gamelan4=[1,1.0861,1.1837,1.3867,1.4768,1.5883,1.7563]_[1,3,4,5,7];
+gamelan4=apply(gamelan4,log(#)/log(2));
+
+
+//Pelog: Lebeng
+gamelan5=[1,1.0861,1.1837,1.3867,1.4768,1.5883,1.7563]_[1,2,3,4,5,6,7];
+gamelan5=apply(gamelan5,log(#)/log(2));
+
+
+//Slendro
+gamelan6=[1,2^(1/5),2^(2/5),2^(3/5),2^(4/5)];
+gamelan6=apply(gamelan6,log(#)/log(2));
+
+
+
+kk=81/80;
+
+
+
+settuning(t):=(
+  tuning=t;
+  tuningspecial=false;
+  sctones=apply(t,log(#)/log(2))
+
+);
+
+
+setspecialtuning(t):=(
+  tuning=t;
+  tuningspecial=true;
+  sctones=t;
+
+
+);
+
+
+tuning=tuningequal;
+settuning(tuningequal);
+//tuning=indie7;
+
+/////////////////////////////////////////
+// THIS ASSOCIATES A FREQEUNCY TO A NOTE
+// PERHAPS THE MOST IMPORTANT FUNCTION
+////////////////////////////////////////
+
+keytoind=[1,0,2,0,3,4,0,5,0,6,0,7];
+tunenote(note):=(
+if(tuningtype=="western",
+
+     octave=floor(note/12+.001);
+     nkey=note-octave*12;     
+     erg=((tuning_(round(nkey+1)))*2^octave)^ssca;
+);
+if((tuningtype=="theory") % (tuningtype=="indian")% (tuningtype=="gamelan")% (tuningtype=="free"),
+     erg=0;
+     octave=floor(note/12+.001);
+     nkey=note-octave*12; 
+     nnkey= keytoind_(nkey+1);
+     if(nnkey!=0,
+       nkey = nnkey+7*octave-1;
+    //   println(note+" "+octave+" "+nkey);
+
+       octave=floor(nkey/(length(sctones))+.001);
+       scind=nkey-octave*(length(sctones));  
+
+       erg=(2^(octave+sctones_(scind+1)))^ssca;
+       );
+  );
+
+erg;
+);
+
+
+adapttuning():=(
+   if(tuningtype=="western",
+      if(buttons_2_6_4,settuning(tuningequal));
+      if(buttons_2_7_4,settuning(tuningpyth));
+      if(buttons_2_8_4,settuning(tuningjust));
+      if(buttons_2_9_4,settuning(tuningmittel));
+   );
+   if(tuningtype=="indian",
+   /*   if(buttons_2_10_4,setspecialtuning(presentraga(7)));
+      if(buttons_2_11_4,setspecialtuning(presentraga(5)));
+      if(buttons_2_12_4,setspecialtuning(presentraga(50)));
+      if(buttons_2_13_4,setspecialtuning(presentraga(55)));*/
+   );
+    if(tuningtype=="gamelan",
+      if(buttons_2_14_4,setspecialtuning(gamelan1));
+      if(buttons_2_15_4,setspecialtuning(gamelan2));
+      if(buttons_2_16_4,setspecialtuning(gamelan3));
+      if(buttons_2_17_4,setspecialtuning(gamelan4));
+      if(buttons_2_18_4,setspecialtuning(gamelan5));
+      if(buttons_2_19_4,setspecialtuning(gamelan6));
+   );
+
+);
+
+//....MIDI
+beating=false;
+linesh=0;
+hitkeys=[];
+linesoftones=zerovector(120);
+keys=["A","W","S","E","D","F","T","G","Z","H","U","J","K","O","L","P","º","Þ","Ü"];
+callmidi(m,a,b):=(
+ if(m==144,hitkeys=set(hitkeys++[a-60]));  
+ if(m==128,hitkeys=set(hitkeys--[a-60]));  
+ mdia=a;
+ mdib=b;
+ mdim=m;
+ playa=a;
+ playb=b;
+ if(m==176,
+    re=a-13;
+    timbre_re=b/127;
+   (reg_re).y=(base_re).y+b/127*((top_re).y-(base_re).y);
+
+
+ );
+ if(m==144,
+ tadamp=0;
+ tbdamp=0;
+
+ if(analyser=="lissajous",
+ clearimage("osci1");
+ clearimage("osci0");
+ adv=0;
+ advlen=0;
+ oldpt=(0,0);
+);
+   play=tunenote(a-60)*f1;
+   partials=apply(1..8,(#^sp)/#);
+
+   if(!beating,
+
+
+     playsin(play,duration->toneduration, damp->tonedamping,line->linesh,harmonics->harm,partials->partials,amp->1);
+     activelines=set(activelines++[linesh]);
+     linesoftones_a=[linesh];
+     notesoflines_(linesh+1)=[a-60,1];
+     linesh=mod(linesh+1,8); 
+  ,
+  if(tonehold &!beating,p1=0;p2=0,p1=random();p2=random);
+     playsin(play+beats*2,duration->toneduration, damp->tonedamping,line->linesh,harmonics->harm,partials->partials,amp->1,phaseshift->p2);
+     playsin(play-beats*2,duration->toneduration, damp->tonedamping,line->linesh+1,harmonics->harm,partials->partials,amp->1,phaseshift->p1);
+     activelines=set(activelines++[linesh,linesh+1]);
+     notesoflines_(linesh+1)=[a-60,1];
+     notesoflines_(linesh+2)=[a-60,-1];
+     linesoftones_a=[linesh,linesh+1];
+
+     linesh=mod(linesh+2,16);
+   );
+ );
+ if(m==128,
+
+  if(tonehold, 
+    apply(linesoftones_a,l,
+       playsin(0,damp->10000,amp->1,harmonics->[0,0,0,0,0,0,0,0],line->l);
+       activelines=activelines--[l];
+       notesoflines_(l+1)=0;
+
+       );
+
+
+    );
+    linesoftones_a=0;
+ );
+);
+
+
+
+stopfromline(ind):=(
+
+       playsin(0,amp->1,harmonics->[0,0,0,0,0,0,0,0],line->ind*2+20);
+       playsin(0,amp->1,harmonics->[0,0,0,0,0,0,0,0],line->ind*2+20+1);
+       activelines=activelines--[ind*2+20,ind*2+20+1];
+
+);
+
+playfromline(x,ind):=(
+
+   play=((2^(1/12))^x)*f1;
+   partials=apply(1..8,(#^sp)/#);
+   println("play: "+x+" "+play+" "+ind+" "+partials);
+   if(!beating,
+
+
+     playsin(play,duration->100,line->ind*2+20,harmonics->harm,partials->partials,amp->1);
+     activelines=set(activelines++[ind*2+20]);
+
+  ,
+     playsin(play+beats*2,duration->100, line->ind*2+20,harmonics->harm,partials->partials,amp->1);
+     playsin(play-beats*2,duration->100, line->ind*2+1+20,harmonics->harm,partials->partials,amp->1);
+          activelines=set(activelines++[ind*2+20,ind*2+20+1]);
+
+
+   );
+);
+
+//....UI
+
+
+PL.x=5;
+PR.x=5+7;
+SL.x=5;
+SR.x=5+7;
+
+base=[C,E,G,K,M,O,Q,S];
+top=[B,D,F,H,L,N,P,R];
+reg=[T,U,V,W,X,Y,Z,P0];
+apply(reg,#.color=(1,1,1));
+SR.color=(1,1,1);
+PR.color=(1,1,1);
+Beats.color=(1,1,1);
+multitouch=[T,U,V,W,X,Y,Z,P0,PR,SR,Beats];
+apply(reg,#.size=7);
+//apply(top,#.y=10);
+//apply(base,#.y=7);
+settimbre(timbre3);
+setphases(phases3);
+
+
+f1=300;
+
+harm=(1,0,1/2,0,1/3,0,1/4);
+harm=(1,1,1,1,1);
+A.y=0;
+
+beats=0;
+
+SC1.xy=(5.3,1.5);
+SC1.size=10;
+
+SC.xy=(-2.05,1.55);
+FREEN.xy=(5.3,3);
+SC.size=10;
+
+
+drohnesel=false;
+olddrohnesel=false;
+
+//....DISSONANCE CURVE
+createimage("disscurve", 1000, 1);
+
+s(f1,f2):=0.24/(0.021*f1+19);;
+dis1(f1,f2):=(
+ss=s(f1,f2);
+exp(-3.5*ss*(f2-f1))-exp(-5.75*ss*(f2-f1))
+);
+
+dis(f1,f2):=if(f1<f2,dis1(f1,f2),dis1(f2,f1));
+
+
+spr(x):=(//WORKAROUND
+er=x;
+if(x==1,er=exp((sp-1)*log(1)));
+if(x==2,er=exp((sp-1)*log(2)));
+if(x==3,er=exp((sp-1)*log(3)));
+if(x==4,er=exp((sp-1)*log(4)));
+if(x==5,er=exp((sp-1)*log(5)));
+if(x==6,er=exp((sp-1)*log(6)));
+if(x==7,er=exp((sp-1)*log(7)));
+if(x==8,er=exp((sp-1)*log(8)));
+er);
+
+xdis(p):=(
+//xx=exp(p.x*log(8));
+xx=exp((p.x*3-1)*log(2));
+sum=0;
+repeat(8,ii,
+repeat(8,jj,
+sum=sum+dis(ii*xx*fdiss*spr(ii),jj*f1*spr(jj))*harm_ii*harm_jj*64;
+));
+sum=sum/5;
+sum1=floor(sum*256)/256;
+sum2=(sum-sum1)*256;
+(sum1,sum2,0);
+);
+sdis(f1,f2):=(
+all=
+  apply(1..length(harm),(f1*(#^sp),5*harm_#))++
+  apply(1..length(harm),(f2*(#^sp),5*harm_#));
+all=select(all,#_2>.001);
+
+
+
+pairs=pairs(all);
+
+
+sum(pairs,int,
+   (int_1_2*int_2_2)*dis(int_1_1,int_2_1)
+);
+);
+
+//Das ist von hand zurechtgefummelt.
+movorig(x):=
+  if(ftype==0,(x+12)/36*26.8-13.6,
+    if(ftype==1,
+      (2^(x/12))*5.95-10.6,
+      -(2^(-x/12))*8.94+4.27)
+      );
+;
+
+invmov(x):=((x+13.6)/26.8*36-12);
+
+invmov(x):=
+  if(ftype==0,((x+13.6)/26.8*36-12),
+    if(ftype==1,
+      log((x+10.6)/5.95)/log(2)*12,
+      -log((-x+4.27)/8.94)/log(2)*12
+      );
+      );
+
+
+
+
+resample():=(///IM Prinzip Totgelegt und durch GPU ersetzt drum kleines n
+
+n=1;
+if(moving,n=2);
+sample=apply(0..n,
+x=#/n*3*12-12;
+f2=f1*2^(x/12);
+(movorig(x),40*sdis(f1,f2))
+);
+    resampled=true;
+
+);
+sp=1;
+resample();
+    resampled=false;
+
+moving=false;
+
+
+//....BASIC ROUTINES
+
+ftype=0;// 0--> LOG(F)   1-->F    2-->  -1/F
+
+mov(x):=(x+12)/36*26.8-13.6;
+
+dtune(note):=(
+  fre=tunenote(note);
+  if(ftype==0,log(fre)/log(2)*12,
+     if(ftype==1,fre*8-8,-1/fre*12+12));
+);
+mov(x):=(dtune(x)+12)/36*26.8-13.6;
+
+//....HELPERS
+
+
+cf(x,n):=(
+  if(n==0,["*"],
+   if(round(x*1000)==round(x)*1000,
+     [x],
+     [floor(x)]++cf(1/(x-floor(x)),n-1)
+   );
+ );
+);
+
+bruch1(cf):=(
+
+   if(length(cf)==1,
+    [cf_1,1]
+   ,
+    zw=bruch1(cf_(2..length(cf)));
+    [zw_1*cf_1+zw_2,zw_1];
+   )
+);
+
+
+bruch(x,cf):=
+if(cf_(-1)=="*",
+  "$"+format(x,2)+"$",
+  erg=bruch1(cf);
+  "$"+erg_1+"\over"+erg_2+"$"; 
+);
+
+myguess(x):=(
+   cf=cf(x,10);
+   bruch(x,cf);
+);
+
+trysqrts(x):=(
+  bas=2^(1/12);
+  regional(test);
+  test=log(x)/log(bas);
+  if(test~=round(test),
+     ggt=ggt(test,12);
+     test=test/ggt;
+     root=12/ggt;
+     if(root~=2,root="",root="["+12/ggt+"]");
+     if(test~=1,
+       "$\sqrt"+root+"{2}$",
+       "$(\sqrt"+root+"{2})^{"+test+"}$"
+       )
+     ,
+     "*"
+  );
+
+);
+
+
+myguess(a,b):=(
+   cf1=cf(a,10);
+   cf2=cf(b,10);
+   if(cf1_(-1)!="*" & cf2_(-1)!="*",
+     erg2=bruch1(cf2);
+     erg1=bruch1(cf1);
+     fakt1=(erg2_1)*(erg1_2);
+     fakt2=(erg2_2)*(erg1_1);
+     ggt=ggt(round(fakt1),round(fakt2));
+
+      "$"+fakt2/ggt+"\over"+fakt1/ggt+"$";
+    ,
+      erg=trysqrts(a/b);
+      if(erg=="*",
+        "$"+format(a/b,2)+"$",
+        erg;
+      );
+    );
+);
+
+ggt1(a,b):=(
+   if(b==0,a,ggt1(b,mod(a,b)));
+);
+ggt(a,b):=(
+  if(a>b,ggt1(a,b),ggt1(b,a));
+);
+
+
+//....LISSAJOUS
+createimage("osci0", 1000, 1000);
+createimage("osci1", 1000, 1000);
+
+
+currentosci = 0; //pingpong
+
+//////////////////////////
+harmso=(0,0,0,0,0,0,0,0);
+spo=0;
+;
+
+noglow():=(
+javascript("var ti=document.getElementById('osci0');var context = ti.getContext('2d');context.globalCompositeOperation = 'source-over'");
+javascript("var ti=document.getElementById('osci1');var context = ti.getContext('2d');context.globalCompositeOperation = 'source-over'");
+);
+glow():=(
+javascript("var ti=document.getElementById('osci0');var context = ti.getContext('2d');context.globalCompositeOperation = 'lighter'");
+javascript("var ti=document.getElementById('osci1');var context = ti.getContext('2d');context.globalCompositeOperation = 'lighter'");
+);
+
+
+hitkeyw(n,mpos):=(
+  regional(code,erg,pos);
+  code=keycodes_(n+13);
+  erg=false;
+
+  if(code_1==0, //white key
+     pos=(keyfrom+(code_3*7+(code_2-1))*keydiff,-5.5);;
+     erg=(mpos.x>pos.x & mpos.x<pos.x+keydiff & mpos.y>pos.y & mpos.y<pos.y +3);
+  );
+  erg;
+);
+
+
+hitkeyb(n,mpos):=(
+  regional(code,erg,pos);
+  code=keycodes_(n+13);
+  erg=false;
+  if(code_1==1, //white key
+     pos=(keyfrom+(code_3*7+(code_2-1)+keyshifts_(code_2))*keydiff,-4.5);;
+     erg=(mpos.x>pos.x & mpos.x<pos.x+keydiff*.6 & mpos.y>pos.y & mpos.y<pos.y +2);
+  );
+
+  erg;
+
+);
+
+
+keyforposition(pos):=(
+   black=-99;
+   white=-99;
+   forall(-12..24,if(hitkeyw(#,pos),white=#););
+   if(analyser!="scales" &!tuningspecial,
+
+     forall(-12..24,if(hitkeyb(#,pos),black=#););
+   );
+   if(black!=-99,black,white);
+
+);
+
+
+hitkeyboard(pos):=(
+   black=-99;
+   white=-99;
+   forall(-12..24,if(hitkeyw(#,pos),white=#););
+   forall(-12..24,if(hitkeyb(#,pos),black=#););
+   println(white+" "+black+" "+pos);
+   if(black!=-99,
+     callmidi(144,60+black,100),
+     if(white!=-99,callmidi(144,60+white,100));
+
+   );
+);
+
+
+releasekeyboard(pos):=(
+   black=-99;
+   white=-99;
+   forall(-12..24,if(hitkeyw(#,pos),white=#););
+   forall(-12..24,if(hitkeyb(#,pos),black=#););
+   println(white+" "+black+" "+pos);
+   if(black!=-99,
+     callmidi(128,60+black,127),
+     if(white!=-99,callmidi(128,60+white,127));
+
+   );
+);
+
+
+</script>
+<script id="csmultidown" type="text/x-cindyscript">
+  dictnumb=multiid()+1;
+  pos=mouse(id->multiid()).xy;
+  key=keyforposition(pos);
+  fingerstokeys_(dictnumb)=key;
+  if(key!=-99,callmidi(144,60+key,100));
+
+
+  if(|pos.y|<1,
+      fingerstofreqs_dictnumb=pos.x;
+      playfromline(invmov(pos.x),dictnumb);
+
+  );
+
+
+//TONNETZ
+if(analyser=="tonnetz",
+  hit=[];
+  tonnetzpos=apply(0..3,j,
+               apply(0..12,i,
+                  if(|tonnetzpos(i,j),mouse(id->multiid()).xy|<scale*1.5,
+                    ind=toneind(i,j);
+                    tind=mod(ind*7+5,12);
+                    hit=hit++[ tind ];)
+               )
+            );
+  apply(hit,callmidi(144,#+60,100));
+  fingerstotonnetz_dictnumb=hit;
+);
+
+//TIMBRE
+
+
+if(showequalizer,
+   sreg=sort(1..length(multitouch),|multitouch_#,pos|);
+   sreg=select(sreg,|multitouch_#,pos|<1);
+   if(sreg!=[],grabequi_(sreg_1)=multiid());
+);
+
+</script>
+
+<script id="csmultiup" type="text/x-cindyscript">
+  dictnumb=multiid()+1;
+  pos=mouse(id->multiid()).xy;
+  callmidi(128,60+fingerstokeys_(dictnumb),127);
+  fingerstokeys_(dictnumb)=-99;
+  releasekeyboard(pos);
+  if(fingerstofreqs_dictnumb!=-99,
+     stopfromline(dictnumb);
+  );
+  fingerstofreqs_dictnumb=-99;
+
+
+//TONNETZ
+  apply(fingerstotonnetz_dictnumb,
+    callmidi(128,60+#,127)
+  );
+  fingerstotonnetz_dictnumb=[];
+
+if(showequalizer,
+   apply(1..length(multitouch),
+      if(grabequi_#==multiid(),grabequi_#=-1)
+   );
+);
+
+
+</script>
+
+
+<script id="csmultidrag" type="text/x-cindyscript">
+  pos=mouse(id->multiid()).xy;
+  key=keyforposition(pos);
+  dictnumb=multiid()+1;
+
+  if(fingerstokeys_dictnumb!=key,
+     callmidi(128,60+fingerstokeys_dictnumb,127);
+     fingerstokeys_dictnumb=key;
+     if(key!=-99,
+       callmidi(144,60+key,100);
+     );
+
+  );
+  if(fingerstofreqs_dictnumb!=-99,
+    fingerstofreqs_dictnumb=pos.x;
+    playfromline(invmov(pos.x),dictnumb);
+  );
+
+if(showequalizer,
+   equichanged=false;
+   apply(1..length(multitouch),
+      if(grabequi_#==multiid(),(multitouch_#).xy=pos;equichanged=true)
+   );
+   if(equichanged,
+     h1=|C,T|/2.5;
+     h2=|E,U|/2.5;
+     h3=|G,V|/2.5;
+     h4=|K,W|/2.5;
+     h5=|M,X|/2.5;
+     h6=|O,Y|/2.5;
+     h7=|Q,Z|/2.5;
+     h8=|S,P0|/2.5;
+     harms=(h1,h2,h3,h4,h5,h6,h7,h8);
+     harm=harms*.125;
+     partials=apply(1..8,(#^sp)/#);
+     if(hitkeys==[],activelines=[];notesoflines=zerovector(30));
+     apply(activelines,l,
+
+     if(true,
+       
+      [a,b]=notesoflines_(l+1);
+
+      play=tunenote(a)*f1;
+
+      playsin(play+b*beats*2,line->l,harmonics->harm,partials->partials);
+
+,
+        playsin(line->l,harmonics->harm,partials->partials);
+);
+      );
+
+   );
+);
+
+
+</script>
+
+<script id="csmousedown" type="text/x-cindyscript">
+    moving=true;
+    resampled=false;
+  pos=mouse().xy;
+//  hitkeyboard(pos);
+</script>
+
+<script id="csmouseup" type="text/x-cindyscript">
+  pos=mouse().xy;
+//  releasekeyboard(pos);
+    moving=false;
+    if(resampled,resample());
+
+
+  hit=0;
+  apply(1..length(currentbuttons),i,b=currentbuttons_i;
+    box=b_3;
+    if(mouse().x>box_1_1 & mouse().x<box_2_1 & mouse().y>box_1_2 & mouse().y<box_3_2 ,
+       hit=i;
+    );
+  );
+
+  ///TIMBRE
+  if(timbreselected &hit!=0,
+      if(contains(1..5,hit),
+        apply(1..5,i,
+            buttons_1_i_4=i==hit;
+        );
+      );
+      if(contains(6..8,hit),
+        apply(6..8,i,
+            buttons_1_i_4=i==hit;
+        );
+      );
+
+      if(hit==1,settimbre(timbre1);setphases(phases1););
+      if(hit==2,settimbre(timbre2);setphases(phases2););
+      if(hit==3,settimbre(timbre3);setphases(phases3););
+      if(hit==4,settimbre(timbre4);setphases(phases4););
+      if(hit==5,settimbre(timbre5);setphases(phases5););
+      if(hit==6,setdampingpick());
+      if(hit==7,setdampingdamp());
+      if(hit==8,setdampinghold());
+  );
+
+
+  ///TUNING
+  if(tuningselected &hit!=0,
+      if(contains(1..5,hit),
+        apply(1..5,i,
+          buttons_2_i_4=(i==hit);
+        );
+      );
+
+     if(hit==1,settuningtype("western"));
+     if(hit==2,settuningtype("indian"));
+     if(hit==3,settuningtype("gamelan"));
+     if(hit==4,settuningtype("theory"));
+     if(hit==5,settuningtype("free"));
+
+    
+     if(tuningtype=="western",
+        if(contains(6..9,hit),
+
+          if(hit==6,settuning(tuningequal));
+          if(hit==7,settuning(tuningpyth));
+          if(hit==8,settuning(tuningjust));
+          if(hit==9,settuning(tuningmittel));
+          apply(6..9,i,
+             buttons_2_i_4=(i==hit);
+          );
+        );
+      );
+      if(tuningtype=="indian",
+        setspecialtuning(presentraga(ragai));
+
+      );
+      if(tuningtype=="gamelan",
+
+        if(contains(6..11,hit),
+
+          if(hit==6,setspecialtuning(gamelan1));
+          if(hit==7,setspecialtuning(gamelan2));
+          if(hit==8,setspecialtuning(gamelan3));
+          if(hit==9,setspecialtuning(gamelan4));
+          if(hit==10,setspecialtuning(gamelan5));
+          if(hit==11,setspecialtuning(gamelan6));
+          apply(6..11,i,
+             buttons_2_(i+8)_4=(i==hit);
+          );
+        );
+      );
+
+
+  );
+  if(analyseselected &hit!=0,
+      apply(1..length(buttons_3),i,
+          buttons_3_i_4=(i==hit);
+      );
+     if(hit==1,setanalysetype("dissonance"));
+     if(hit==2,setanalysetype("ratios"));
+     if(hit==3,setanalysetype("lissajous"));
+     //if(hit==4,setanalysetype("circle"));
+     if(hit==4,setanalysetype("wave"));
+   //  if(hit==6,setanalysetype("tonnetz"));
+  );
+
+
+
+
+if(|mouse().xy,timbrebuttonpos+(mainiconextend,mainiconextend)/2|<mainiconextend/2,
+   timbreselected=!timbreselected;
+   if(timbreselected,analyseselected=false;tuningselected=false);
+);
+if(|mouse().xy,tuningbuttonpos+(mainiconextend,mainiconextend)/2|<mainiconextend/2,
+   tuningselected=!tuningselected;
+   if(tuningselected,analyseselected=false;timbreselected=false);
+);
+
+if(|mouse().xy,analysebuttonpos+(mainiconextend,mainiconextend)/2|<mainiconextend/2,
+   analyseselected=!analyseselected;
+   if(analyseselected,timbreselected=false;tuningselected=false);
+);
+
+
+
+if(analyseselected , setanalyser(analysetype));
+
+
+if(tuningselected & tuningtype=="western",setanalyser("tonnetz"));
+if(tuningselected & tuningtype=="theory",setanalyser("scales"));
+if(tuningselected & tuningtype=="free",setanalyser("free"));
+if(tuningselected & tuningtype=="indian",setanalyser("raga"));
+if(tuningselected & tuningtype=="gamelan",setanalyser("gamelan"));
+if(tuningtype!="indian",drohnesel=false );
+
+//if(tuningselected & (tuningtype=="western" ) ,setanalyser(analysetype));
+
+
+if(!tuningselected & !analyseselected,setanalyser(analysetype));
+
+
+if(tuningselected,
+
+   if(|mouse().xy,(13,2)|<1.5,
+     PR.x=5+7;
+     SR.x=5+7;   
+ );  
+);
+
+
+
+if(|mouse().xy,(-15,-3)|<.5,ftype=0;resample());
+if(|mouse().xy,(-15,-4)|<.5,ftype=1;resample());
+if(|mouse().xy,(-15,-5)|<.5,ftype=2;resample());
+
+if(|mouse().xy,(15.2,-5)|<.8,
+   lang=1-lang;
+   setlang(); 
+);
+
+
+if(|mouse().xy,(15.2,-3)|<.8,
+   info=!info;
+);
+
+
+if(analyser=="raga",
+if(|mouse().xy,(-5,7)|<1,drohnesel=!drohnesel);
+
+
+
+if(drohnesel,
+olddrohnesel=true;
+g=f1;
+  playsin(g*1.002/2,harmonics->apply(1..10,1)*.3,amp->0.2/4,line->25,duration->1000);
+  playsin(0.5*g/2,harmonics->apply(1..10,1)*.3,amp->0.2/4,line->26,duration->1000);
+  playsin(0.5*g*3/2*0.999/2,harmonics->apply(1..10,1)*.3,amp->0.2/4,line->27,duration->1000);
+  playsin(g*1.001,harmonics->apply(1..10,1)*.3,amp->0.1/4,line->28,duration->1000);
+  playsin(0.5*g*.998,harmonics->apply(1..10,1)*.3,amp->0.2/4,line->29,duration->1000);
+
+);
+
+///RAGASELECT
+
+if(|mouse().xy,(7.5+.75,8.7+.75)|<.5,down());
+if(|mouse().xy,(10.5+.75,8.7+.75)|<.5,up());
+
+);
+
+if(!drohnesel&olddrohnesel,
+olddrohnesel=false;
+  playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->25);
+  playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->26);
+  playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->27);
+  playsin(0,harmonics->apply(1..10,1),amp->0.1/3,line->28);
+  playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->29);
+);
+
+/*
+if(tuningtype!="indian",
+    playsin(0,duration->0, line->25,harmonics->[1],partials->[1],amp->.3);
+);*/
+</script>
+
+<script id="csdraw" type="text/x-cindyscript">
+
+showequalizer=timbreselected;
+
+equalizer=[T,U,V,W,X,Y,Z,P0,sa,sb,sc,sd,se,sf,sg,ssh,PL,SL,PR,SR];
+apply(equalizer,
+  #.visible=showequalizer;
+);
+
+
+fillpoly([[-16,-6],[16,-6],[16,12],[-16,12]],color->(.1,0,0));  
+
+//drawtext((0,2),activelines,color->(1,1,1),size->20);
+//drawtext((-6,1),notesoflines,color->(1,1,1),size->20);
+//drawtext((-6,3),beating+" "+format(beats,14),color->(1,1,1),size->20);
+
+//drawtext((0,0),activelines,color->(1,1,1),size->20);
+//drawtext((-15.9,-1),mdim+" "+mdia+" "+mdib,color->(1,1,1)*.3,size->20);
+//drawtext((-15.9,-1.5),hitkeys,color->(1,1,1)*.3,size->20);
+//drawtext((-15,4),partials,size->30,color->(1,1,1));
+//drawtext((-15,12),sctones,size->30,color->(1,1,1));
+
+
+
+//////////////////////////////
+//....GENERAL SETTINGS
+//////////////////////////////
+
+
+
+
+drawtext((-15.5,-3),"log(F)",color->(1,1,1)*if(ftype==0,1,.3),size->20);
+drawtext((-15.5,-4),"F",color->(1,1,1)*if(ftype==1,1,.3),size->20);
+drawtext((-15.5,-5),"-1/F",color->(1,1,1)*if(ftype==2,1,.3),size->20);
+
+
+drawtext((14.5,-5),"DE",color->(1,1,1)*if(lang==0,1,.5),size->20);
+drawtext((15.3,-5),"EN",color->(1,1,1)*if(lang==1,1,.5),size->20);
+drawtext((14.5,-3),"info",color->(1,1,1)*if(info,1,.5),size->25);
+
+FR.y=13;
+FR.x=max(4,min(10,FR.x));
+
+fr=2^((FR.x-7)/3)*261;
+basefr=fr;
+
+
+PL.y=7.8;
+PL.size=0;
+PL.x=5;
+PR.y=7.8;
+
+if(SR.x>15,SR.x=15);
+if(PR.x>15,PR.x=15);
+
+if(SR.x<SL.x+1,SR.x=SL.x+1);
+if(PR.x<PL.x+1,PR.x=PL.x+1);
+
+SL.y=7;
+SL.size=0;
+SL.x=5;
+SR.y=7;
+sppr=(PR.x-PL.x)/7;;
+
+sp=(if(sppr<0.99,sppr+.01,if(sppr>1.01,sppr-.01,1)));
+sscapr=(SR.x-SL.x)/7;;
+ssca=(if(sscapr<0.99,sscapr+.01,if(sscapr>1.01,sscapr-.01,1)));
+
+apply(1..8,
+  (top_(#)).x=PL.x+(#-1)*sp;
+  (base_(#)).x=PL.x+(#-1)*sp;
+  (top_(#)).y=11;
+  (base_(#)).y=8.5;
+);
+h1=|C,T|/2.5;
+h2=|E,U|/2.5;
+h3=|G,V|/2.5;
+h4=|K,W|/2.5;
+h5=|M,X|/2.5;
+h6=|O,Y|/2.5;
+h7=|Q,Z|/2.5;
+h8=|S,P0|/2.5;
+harms=(h1,h2,h3,h4,h5,h6,h7,h8);
+//harms=harms/|harms|;
+harm=harms*.125;
+partials=apply(1..8,(#^sp)/#);
+
+if(analyser=="dissonance"&
+((|harmso,harms|>0.0001)
+%(sp!=spo)
+%(fr!=fro))
+,resample());
+harmso=harms;
+spo=sp;
+fro=fr;
+
+
+
+
+A.y=0;
+f1=fr;
+f2=f1*2^(A.x/12);
+
+
+///ADAPT THE TUNIGN
+
+adapttuning();
+
+
+
+//////////////////////////////
+//....DRAW TUNING UI
+//////////////////////////////
+if(tuningselected,
+  draw(tuningbuttonpos+(mainiconextend/2,0),tuningbuttonpos+(mainiconextend/2,-.5),color->(1,1,1),size->2);
+  fillpoly(tuningbox2,color->(.5,.5,1)*.3,alpha->.9);
+  drawpoly(tuningbox2,color->(1,1,1),size->2);
+
+  //draw(tuningdock,(tuningboxsm_1+tuningboxsm_3)/2,color->(1,1,1)*.7,alpha->.9,size->4);
+
+  //fillpoly(tuningboxsm,color->(.5,.5,1)*.5,alpha->1);
+
+
+ if(sp!=1 % ssca!=1,
+
+   drawimage((12.7,3),(13.7,3),"caution",alpha->.7);
+   drawtext((12.5,2.7),lang("unübliche","non-standard"),color->(1,1,1),size->16);
+   drawtext((12.5,2.3),lang("Skala & Timbre","scale & timbre"),color->(1,1,1),size->16);
+   drawtext((12.5,1.5),"RESET",color->(1,1,1),size->16);
+ );
+
+);
+
+
+//////////////////////////////
+//....ANALYZER DRAWING
+//////////////////////////////
+
+
+// DISSONACNE CURVE
+
+if(analyser=="dissonance",
+//  connect(sample,color->(.5,1,.5),size->2);
+
+fdiss=f1;
+
+  freqs=sort(apply(hitkeys,tunenote(#)));
+ // drawtext((0,1),freqs,color->(1,1,1),size->20);
+//if(freqs!=[],fdiss=f1/freqs_1);
+  colorplot((0,0),(1,0),"disscurve",(xdis(#)));
+
+sample = readpixels("disscurve");
+connect(apply(1..1000,
+(movorig(#/1000*36-12),(sample_#_1*256+sample_#_2)/4);
+),color->(.5,1,.5),size->2);
+
+
+);
+
+// ENDDISSONACNE CURVE
+
+// CIRCLE OF FIFTH
+
+tonenames=("$C$","$C^\sharp$","$D$","$E^\flat$","$E$","$F$","$F^\sharp$","$G$","$A^\flat$","$A$","$B^\flat$","$H$");
+
+if(analyser=="circle",
+   tonset=set(apply(hitkeys,mod(#,12)));
+   rad=3;
+   center1=(-8,4.5);
+   drawcircle(center1,rad,color->(1,1,1));
+   center2=(1,4.5);
+   drawcircle(center2,rad,color->(1,1,1));
+   deltaw=1/12*360°;
+
+   apply(0..11,
+      w=#*deltaw;
+      draw(center1+(sin(w),cos(w))*rad, 
+           center1+(sin(w+7*deltaw),cos(w+7*deltaw))*rad,
+           color->(1,1,1)*.5);
+      draw(center2+(sin(w),cos(w))*rad, 
+           center2+(sin(w+7*deltaw),cos(w+7*deltaw))*rad,
+           color->(1,1,1)*.5);
+   );
+   htpolygon=apply(tonset,w=#*deltaw;center1+(sin(w),cos(w))*rad);
+   fillpoly(htpolygon,color->(1,.8,.5),alpha->.7);
+   drawpoly(htpolygon,color->(1,1,1),size->3);
+ 
+   tonset2=sort(apply(tonset,mod(7*#,12)));
+   quipolygon=apply(tonset2,w=#*deltaw;center2+(sin(w),cos(w))*rad);
+   fillpoly(quipolygon,color->(1,.8,.5),alpha->.7);
+   drawpoly(quipolygon,color->(1,1,1),size->3);
+
+
+
+   apply(0..11,
+      isin=contains(tonset,#);
+      w=#*deltaw;
+      fillcircle(center1+(sin(w),cos(w))*rad,.4,color->(.5,1,.5)*if(isin,.7,.3));
+      fillcircle(center2+(sin(7*w),cos(7*w))*rad,.4,color->(.5,1,.5)*if(isin,.7,.3));
+      drawtext(center1+(sin(w),cos(w)-.04)*rad,tonenames_(#+1),color->(1,1,1),align->"center",size->24);
+      drawtext(center2+(sin(7*w),cos(7*w)-.04)*rad,tonenames_(#+1),color->(1,1,1),align->"center",size->24);
+   );
+
+);
+
+// END CIRCLE OF FIFTH
+
+// RATIOS
+
+if(analyser=="ratios",
+  freqs=sort(apply(hitkeys,tunenote(#)));
+  tposs=sort(apply(hitkeys,mov(#)));
+  reffreq=tunenote(12);
+  if(length(tposs)>1,
+    apply(tposs,
+       draw((#,0),(#,1.5),color->(.5,1,.5),size->2);
+     ); 
+     apply(tposs,
+       draw((#,1.5),color->(.5,1,.5),size->3);
+     ); 
+     draw((tposs_(1),1.5),(tposs_(-1),1.5),color->(.5,1,.5),size->2);
+    );
+
+  apply(1..(length(tposs)-1),
+       erg=myguess((freqs_(#+1))/reffreq,(freqs_(#))/reffreq);
+       ergpos=((tposs_(#+1))+(tposs_(#)))/2;
+       drawtext((ergpos,1.9),erg,color->(1,1,1),size->40,align->"center");
+     );  
+  if(length(tposs)>2,
+     draw((tposs_(1),3.2),(tposs_(-1),3.2),color->(.5,1,.5)*.8,size->2);
+     draw((tposs_(1),1.5),(tposs_(1),3.2),color->(.5,1,.5)*.8,size->2);
+     draw((tposs_(-1),1.5),(tposs_(-1),3.2),color->(.5,1,.5)*.8,size->2);
+     draw((tposs_(1),3.2),color->(.5,1,.5),size->3)*.8;
+     draw((tposs_(-1),3.2),color->(.5,1,.5),size->3*.8);
+
+       erg=myguess((freqs_(-1))/reffreq,(freqs_(1))/reffreq);
+       ergpos=((tposs_(1))+(tposs_(-1)))/2;
+       drawtext((ergpos,3.6),erg,color->(1,1,1),size->40,align->"center");
+  );
+
+  if(ftype==2,
+     t0=movorig(1000);
+     t1=movorig(-12);
+     apply(tposs,t,
+        plot(.5*sin((x-t0)*2*pi/|t,t0|)*|t,t0|*.2,color->(1,.8,.5),stop->t0,start->t1); 
+        plot(.5*sin((x-t0)*2*pi/|t,t0|)*|t,t0|*.2,color->(1,.8,.5),stop->t0,start->t,size->3); 
+        draw((t,0));
+     );
+  );
+);
+// END RATIOS
+
+
+
+// WAVE FUNCTIONS
+if(analyser=="wave",
+  freqs=sort(apply(hitkeys,tunenote(#)));
+
+
+  if(freqs==[],
+     fingfr=select(fingerstofreqs,#!=-99);
+     freqs=sort(apply(fingfr,invmov(#)));
+     freqs=apply(freqs,x,((2^(1/12))^x));
+  );
+  j=0;
+
+  time=seconds()-timestamp;
+  if(freqs!=[],
+    mult=2;
+    sh=time;
+    sh=floor(sh*freqs_1*basefr)/freqs_1/basefr;
+    if(length(freqs)>1,
+       erg=sort(-20..00,shdiff=|(sh+#/freqs_1/basefr)*freqs_2*basefr,oldsh*freqs_2*basefr|;|shdiff-round(shdiff)|);  
+       oldsh=erg_1/freqs_1/basefr+sh;
+       sh=oldsh; 
+    );
+    prevsh=sh;
+    oldsh=sh;
+    if(beats==0,
+
+      plot(
+        2.5+
+        sum(freqs,fr,
+           ti=(((x+14)/261/28*10-sh)*fr*basefr);
+           sum(1..8,i,8*harm_i*sin((2*pi*(i^sp)*ti+phases_i))/length(freqs)
+        )),
+       start->-14,stop->14,color->(.7,1,.7),size->2,pxlres->10);
+      ,
+
+      plot(
+        3+
+        sum(freqs,fr,
+           ti1=(((x+14)/261/28*10-sh)*(fr*basefr+2*beats));
+           ti2=(((x+14)/261/28*10-sh)*(fr*basefr-2*beats));
+           sum(1..8,i,4*harm_i*sin((2*pi*(i^sp)*ti1+phases_i)))/length(freqs)/2+
+           sum(1..8,i,4*harm_i*sin((2*pi*(i^sp)*ti2+phases_i)))/length(freqs)/2
+
+        ),
+       start->-14,stop->14,color->(.7,1,.7),size->2,pxlres->10);
+     );
+
+     );
+  
+);
+
+// END WAVE FUNCTIONS
+
+
+
+
+//LISSAJOUS
+
+
+if(analyser!="lissajous",
+ DA.visible=false;
+ );
+ if(analyser=="lissajous",
+ DA.visible=true;
+ if(!timbreselected,
+   fillpolygon(((-6,1),(4,1),(4,11),(-6,11)),color->[1,1,1]*0);
+   drawpolygon(((-6,1),(4,1),(4,11),(-6,11)),color->[1,1,1]*.3);
+   ,
+   fillpolygon(((-11,.5),(-3,.5),(-3,8.5),(-11,8.5)),color->[1,1,1]*0);
+   drawpolygon(((-11,.5),(-3,.5),(-3,8.5),(-11,8.5)),color->[1,1,1]*.3);
+
+ );
+ draw((5,2),(9,2),color->(1,1,1)*.6);
+ drawtext((5,1.4),"Dämpfung",color->(1,1,1)*.6,size->16);
+ DA.y=2;
+ DA.x=min(9,max(DA.x,5));
+ oszidamp=(DA.x-5)/8;
+ freqs=sort(apply(hitkeys,tunenote(#)));
+
+  if(freqs==[],
+     fingfr=select(fingerstofreqs,#!=-99);
+     freqs=sort(apply(fingfr,invmov(#)));
+     freqs=apply(freqs,x,((2^(1/12))^x));
+  );
+  damping=(oszidamp!=0);
+  dt=seconds()-timestamp;
+//  dt=.01;
+  timestamp=seconds();
+  if(length(freqs)>=2,
+    hmax=sum(harms);
+    if(beats==0,
+      ffre(t):=sum(1..8,i,sin((i^sp)*t+phases_i)*harms_i)/((hmax)^(.7));
+      ,
+       ffre(t):=sum(1..8,i,sin((i^sp+2*beats)*t+phases_i)*harms_i)/((hmax)^(.7))/2+
+                sum(1..8,i,sin((i^sp-2*beats)*t+phases_i)*harms_i)/((hmax)^(.7))/2;
+      );
+
+    aa=freqs_1*50;
+    bb=freqs_2*50;
+
+    N = 300;
+    alphaf = .85;
+    if(damping,alphaf = 1);
+    pts = [[
+        ffre(ta)*if(damping,exp(-tadamp*oszidamp*4),1),
+        ffre(tb)*if(damping,exp(-tbdamp*oszidamp*4),1)
+      ]*.95]++apply(1..N,
+      ta=ta+dt*aa*2*pi/N;
+      tb=tb+dt*bb*2*pi/N;
+      tadamp=tadamp+dt*.02;
+      tbdamp=tbdamp+dt*.02;
+      la=ffre(ta)*if(damping,exp(-tadamp*oszidamp*4),1);
+      lb=ffre(tb)*if(damping,exp(-tbdamp*oszidamp*4),1);
+
+      pt=(la,lb);
+      pt*.95;
+    );
+    otherosci = 1-currentosci;
+    mult = re(.8^(1/N));
+
+glow();
+
+    clearimage("osci"+currentosci);
+    canvas((-1.05,-1.05),(1.05,-1.05),"osci"+currentosci,
+      drawimage((-1.05,-1.05),(1.05,-1.05),"osci"+otherosci,alpha->alphaf);
+      apply(1..(length(pts)-1),
+        draw(pts_#,pts_(#+1),color->(0.5,1,.5),alpha->alphaf^((N-#)/N),size->.21);
+      );
+    );
+    if(!timbreselected,
+      drawimage((-6,1),(4,1), "osci"+currentosci);
+      ,
+       drawimage((-11,.5),(-3,.5), "osci"+currentosci);
+
+    );
+/*
+
+ //   clearimage("osci0");
+ glow();
+    canvas((-1.05,-1.05),(1.05,-1.05),"osci0",
+      apply(1..(length(pts)-1),
+       // advanceto(pts_#,alphaf^((N-#)/N));
+        draw(pts_#,pts_(#+1),color->(0.5,0.5,1),alpha->alphaf^((N-#)/N),size->.21);
+      );
+    );
+    drawimage((-6,1),(4,1), "osci0");
+*/
+    currentosci = 1-currentosci;
+ )
+
+);
+
+
+
+advanceto(pt,al):=(
+if(oldpt!=(0,0),
+  len=|pt,oldpt|;
+  advleno=advlen;
+  advlen=advlen+len;
+  while(adv<advlen,
+    lambda=(adv-advleno)/len;
+    println(lambda);
+     ptt=pt*(lambda)+oldpt*(1-lambda);
+     fillcircle(ptt,.01,color->(0.5,0.5,1),alpha->.5);
+     adv=adv+.01;
+  );
+  //   fillcircle(ptt,.008,color->(1,0.5,1),alpha->.5);
+);
+  oldpt=pt;
+);
+
+
+//END LISSAJOUS
+
+
+////TONNETZ
+qzirkel=["$C$","$G$","$D$","$A$","$E$","$H$","$F\sharp$","$C\sharp$","$G\sharp$","$E\flat$","$B\flat$","$F$"];
+toneind(i,j):=(
+   ind=mod(i+4*j-10,12)+1;
+   ind;
+);
+
+tonnetzpos(i,j):=(
+    tonnetzpos_(j+1)_(i+1);
+);
+quotnote(tind1,tind2):=(
+    tt1=tind1-7;
+    tt2=tind2-7;
+    if(tt2<tt1,tt2=tt2+12);
+
+    quot=tunenote(tt2)/tunenote(tt1);
+    if(tt2-tt1==8, quot=tunenote(tt1)/tunenote(tt2-12));
+
+    erg=0;
+
+    if(tt2-tt1==7, erg=quot/(3/2));
+    if(tt2-tt1==4, erg=quot/(5/4));
+    if(tt2-tt1==3, erg=quot/(6/5));
+    if(tt2-tt1==8, erg=quot/(5/4));
+    erg;
+);
+
+netzcol(x):=
+(1,1,1)+(min(x-1,0))*40*(0,1,1)-(max(x-1,0))*25*(1,0,1);
+
+if(analyser=="tonnetz",
+scale=.85;
+
+tonnetzpos=apply(0..3,j,
+               apply(0..12,i,
+                  scale*(3+i*2-14+j*sqrt(3/4),3+j*sqrt(3/4)*2);
+               )
+            );
+
+hitlist=apply(hitkeys,mod(#+5+2,12));
+
+
+apply(0..2,j,
+apply(0..12,i,
+
+    ind1=toneind(i,j);
+    tind1=mod(ind1*7,12);
+    pos1=tonnetzpos(i,j);
+    in1=contains(hitlist,tind1);
+
+if(i>0,
+    ind2=toneind(i-1,j+1);
+    tind2=mod(ind2*7,12);
+    pos2=tonnetzpos(i-1,j+1);
+    in2=contains(hitlist,tind2);
+    );
+
+     ind3=toneind(i,j+1);
+     tind3=mod(ind3*7,12);
+     pos3=tonnetzpos(i,j+1);
+     in3=contains(hitlist,tind3);
+
+    
+
+       
+    if(i>0&in1&in2&in3,fillpoly([pos1,pos2,pos3],color->(.5,1,.5)*.6));
+
+
+);
+);
+
+apply(0..3,j,
+apply(0..12,i,
+    ind1=toneind(i,j);
+    tind1=mod(ind1*7,12);
+    pos1=tonnetzpos(i,j);
+    in1=contains(hitlist,tind1);
+
+    if(i<12,
+    ind2=toneind(i+1,j);
+    tind2=mod(ind2*7,12);
+    pos2=tonnetzpos(i+1,j);
+    in2=contains(hitlist,tind2);
+    );
+
+    if(j<3,
+     ind3=toneind(i,j+1);
+     tind3=mod(ind3*7,12);
+     pos3=tonnetzpos(i,j+1);
+     in3=contains(hitlist,tind3);
+
+    );
+    
+    
+
+        
+    if(i<12&j<3&in1&in2&in3,fillpoly([pos1,pos2,pos3],color->(.5,.5,1)*.6));
+
+    draw(pos1,pos2,color->netzcol(quotnote(tind1,tind2))*if(in1&in2,1,.5),size->6);//quint
+ //   drawtext((pos1+pos2)/2+(-.2,.1),quotnote(tind1,tind2),color->(1,1,1));
+    if(j<3,
+      if(i<12,
+      draw(pos1,pos3,color->netzcol(quotnote(tind1,tind3))*if(in1&in3,1,.5),size->6);//grterz
+       //       drawtext((pos1+pos3)/2+(-.2,.1),quotnote(tind1,tind3),color->(1,1,1));
+
+);
+      draw(pos2,pos3,color->netzcol(quotnote(tind3,tind2))*if(in2&in3,1,.5),size->6);//klterz
+
+   //     drawtext((pos2+pos3)/2+(-.2,.1),quotnote(tind3,tind2),color->(1,1,1));
+ 
+    );
+  );  
+
+
+);
+
+
+apply(0..3,j,
+apply(0..12,i,
+    ind=toneind(i,j);
+    tind=mod(ind*7,12);
+    al=if(contains(hitlist,tind),1,.5);
+    pos=tonnetzpos(i,j);
+   fillcircle(pos,.6*scale,color->(1,1,1)*al);
+   drawtext(pos+(0,-.2),align->"center",qzirkel_ind,size->40);
+
+);
+);
+
+
+);
+
+///END TONNETZ
+
+
+///FREE
+if(analyser!="free",
+  FREEN.visible=false;
+  ve=apply(freenotes,#.visible=false;)
+
+);
+if(analyser=="free",
+  FREEN.visible=true;
+  tuningspecial=true;
+
+ve=apply(freenotes,p,
+erg1=p.xy-(0,5);
+erg1/|erg1|;
+);
+
+ apply(1..length(freenotes),
+   (freenotes_#).xy=(ve_#).xy*3+(0,5)
+
+ );
+  scmid=(0,5);
+  drawcircle((0,5),3,color->(1,1,1)*.4,size->9);
+  draw((4,2),(10,2),color->(1,1,1));
+  FREEN.y=2;
+  FREEN.x=min(10,max(FREEN.x,4));
+  freen=round((FREEN.x-3.5)/6*24);
+ apply(1..length(freenotes),
+ freenotes_#.visible=(#<freen+1);
+
+ );
+   drawtext((4+.2,2+.4),"n="+freen,color->(1,1,1),size->20);
+
+ sctones=[];
+ apply(1..freen,
+     scapt=ve_#;
+     sctones=sctones++[(arctan2(-scapt.y,-scapt.x)+pi)/(2*pi)];
+
+  );
+ //  drawtext((0,0),sctones,color->(1,1,1),size->20);
+
+);
+
+
+///SCALES
+
+if(analyser!="scales",
+  SC.visible=false;
+  SC1.visible=false;
+);
+if(analyser=="scales",
+  SC.visible=true;
+  SC1.visible=true;
+  scmid=(0,5);
+  drawcircle((0,5),3,color->(1,1,1)*.4,size->9);
+  draw((4,2),(10,2),color->(1,1,1));
+  SC1.y=2;
+  scv=SC-scmid;
+  scv=scv/|scv|;
+  SC.xy=scmid+scv*3;
+  SC1.x=min(10,max(SC1.x,4));
+  scn=round((SC1.x-3.5)/6*24);
+  drawtext((4+.2,2+.4),"n="+scn,color->(1,1,1),size->20);
+  sca=i;
+  scb=-i*complex(scv);
+  sctones=[];
+  apply(1..scn,
+     draw(scmid+gauss(sca)*3,scmid+gauss(sca)*3.5,color->(.5,.5,1),size->2);
+
+     draw(scmid+gauss(sca)*3,
+          scmid+gauss(sca*scb)*3,color->(1,1,1)*.7,size->2);
+     scto=im(log(1/sca*i))/pi/2;
+     if(scto<0,scto=scto+1);
+   //  drawtext(scmid+gauss(sca)*5,scto,color->(1,1,1));
+     sctones=sctones++[scto];
+     sca=sca*scb;
+  );
+
+
+
+
+);
+
+
+
+if((
+(analyser=="free")%
+(analyser=="scales")%
+(analyser=="raga")%
+(analyser=="gamelan"))
+,
+MID.visible=true;
+  sctones=sort(sctones);
+
+  scpairs=pairs(sctones);
+
+
+
+glmid=MID.xy;
+glrad=2;
+
+if(analyser=="free",
+glmid=(-11,5);
+glrad=2.5;
+MID.visible=false;
+);
+
+if(analyser=="scales",
+glmid=(-11,5);
+glrad=2.5;
+MID.visible=false;
+);
+
+if(analyser=="raga",
+glmid=(-11,5);
+glrad=2.5;
+MID.visible=false;
+);
+
+if(analyser=="gamelan",
+glmid=(-11,5);
+glrad=2.5;
+MID.visible=false;
+);
+
+
+intqw=log(3/2)/log(2);
+intgt=log(5/4)/log(2);
+intkt=log(6/5)/log(2);
+
+marks=[
+  [log(3/2)/log(2),0.02,.02,(.3,1,.3)],
+  [log(5/4)/log(2),0.03,.03,(.3,.7,.7)],
+  [log(6/5)/log(2),0.03,.03,(.3,.3,1)],
+  [.5,0.03,.03,(1,.4,.2)],
+  [.08,0.07,.07,(1,.1,.1)]
+
+];
+drawcircle(glmid,glrad,color->(1,1,1)*.5);
+  apply(scpairs,
+     w1=-#_1*2*pi+pi/2;
+     w2=-#_2*2*pi+pi/2;
+
+     d1=#_2-#_1;
+     d2=#_1-#_2+1;
+
+     apply(marks,m,
+        if(|d1-m_1|<m_2,
+           draw((cos(w1),sin(w1))*glrad+glmid, 
+                (cos(w2),sin(w2))*glrad+glmid,
+                 color->m_4,size->((m_2-|d1-m_1|)/m_2)^2*4 ) ;
+         );
+         if(|d2-m_1|<m_3,
+
+          draw((cos(w1),sin(w1))*glrad+glmid,
+               (cos(w2),sin(w2))*glrad+glmid,
+                 color->m_4,size->((m_3-|d2-m_1|)/m_3)^2*4);
+          );
+
+
+     );
+    
+
+
+  );
+  apply(sctones,
+    w1=-#*2*pi+pi/2;
+    fillcircle((cos(w1),sin(w1))*glrad+glmid,.1,color->(1,1,1));
+  );
+, MID.visible=false;
+);
+
+
+///SCALES
+
+if(analyser=="raga",
+
+ragaposs=
+apply(1..12,i,(i*1.7-5,4.5))++
+apply(4..8,i,(i*1.7-5,4.5+1.7))++
+apply(5..9,i,(i*1.7-5,4.5-1.7));
+ragaposs=apply(ragaposs,#+(-2,.3));
+ragapairs=select(pairs(ragaposs),|#_1,#_2|~=1.7);
+
+ragafrsort=(
+1,256/243,16/15,10/9,9/8,32/27,6/5,5/4,81/64,4/3,27/20,45/32,729/512,3/2,128/81,8/5,5/3,27/16,16/9,9/5,15/8,243/128,2);
+
+ragafr=[256/243,  128/81, 32/27, 16/9, 4/3, 1 , 3/2, 9/8,  27/16, 81/64, 243/128, 729/512,
+10/9, 5/3,5/4,15/8,45/32,16/15,8/5,6/5,9/5,27/20];
+ragafrg=apply(ragafr,myguess(#));
+raganames=["$D\flat$","$A\flat$","$E\flat$","$B\flat$","$F$", "$C$","$G$","$D$","$A$","$E$","$H$","$F\sharp$"]++
+["$D\downarrow$","$A\downarrow$","$E\downarrow$","$H\downarrow$","$F\sharp\downarrow$"]++
+["$D\flat\uparrow$","$A\flat\uparrow$","$E\flat\uparrow$","$B\flat\uparrow$","$F\uparrow$"]
+;
+
+ragahits=apply(hitkeys,(tunenote(#)));
+ragahits=apply(ragahits,(#/(2^(floor(log(#)/log(2))))));
+ragahits=apply(ragahits,myguess(#));
+
+ragaselind=select(1..length(ragafr),contains(sctones,log(ragafr_#)/log(2)));
+apply(ragapairs,
+  draw(#,color->(1,1,1)*.3,size->3);
+);
+apply(1..22,
+  fillcircle(ragaposs_#,.6,color->(1,1,1)*.3);
+  if(contains(ragahits,ragafrg_#),drawcircle(ragaposs_#,.6,size->4,color->(1,0,0)));
+);
+
+apply(ragaselind,
+  fillcircle(ragaposs_#,.6,color->(1,1,1)*.6)
+);
+apply(1..22,
+  drawtext(ragaposs_#+(0,-.2),raganames_#,size->35,align->"center");
+);
+
+drawimage((-6,6),(-4,6),"drohne",alpha->if(drohnesel,1,0.3));
+
+);
+
+
+/////////////////////////
+
+
+//////////////////////////////
+//....DRAW THE SCALE
+//////////////////////////////
+
+tones=apply(1..37,(#,(#-13)));
+
+drawtext((mov(0),-1),"1",size->20,align->"center",color->(1,1,1));
+drawtext((mov(12),-1),"2",size->20,align->"center",color->(1,1,1));
+drawtext((mov(24),-1),"4",size->20,align->"center",color->(1,1,1));
+drawtext((mov(-12),-1),"1/2",size->20,align->"center",color->(1,1,1));
+
+draw((mov(tones_1_2),0),(mov(tones_37_2),0),color->(1,1,1));
+//apply(-12..24,x=mov(#);  draw((x,-.2),(x,.2),color->(1,1,1)));
+apply(tones,x=mov(#_2);  draw((x,-.2),(x,.2),color->(1,1,1)));
+apply(-1..2,x=mov(tones_(#*12+13)_2);draw((x,-.2),(x,.2),size->3,color->(1,1,1)));
+//apply(tones,draw((mov(#_2),0)));
+
+
+//////////////////////////////
+//....DRAWmTHE KEYBOARD
+//////////////////////////////
+keycodes=[
+(0,1,0),
+  (1,1,0),
+(0,2,0),
+  (1,2,0),
+(0,3,0),
+(0,4,0),
+  (1,4,0),
+(0,5,0),
+  (1,5,0),
+(0,6,0),
+  (1,6,0),
+(0,7,0),
+(0,1,1),
+  (1,1,1),
+(0,2,1),
+  (1,2,1),
+(0,3,1),
+(0,4,1),
+  (1,4,1),
+(0,5,1),
+  (1,5,1),
+(0,6,1),
+  (1,6,1),
+(0,7,1),
+(0,1,2),
+  (1,1,2),
+(0,2,2),
+  (1,2,2),
+(0,3,2),
+(0,4,2),
+  (1,4,2),
+(0,5,2),
+  (1,5,2),
+(0,6,2),
+  (1,6,2),
+(0,7,2),
+(0,1,3)
+];
+
+keyfrom=-14;
+keyto=14;
+keydiff=(keyto-keyfrom)/22;
+keydocks=zerovector(length(keycodes));
+keydockpos=zerovector(length(keycodes));
+keydockshifts=(.3,.5,.7,.3,.45,.55,.7);
+
+drawkeyw(n,mode):=(
+  regional(code,nn);
+  code=keycodes_(n+13);
+
+  if(code_1==0, //white key
+     pos=(keyfrom+(code_3*7+(code_2-1))*keydiff,-5.5);;
+     fillpoly(
+        [pos,pos+(keydiff,0),pos+(keydiff,3),pos+(0,3)],
+        color->if(contains(hitkeys,n),(1,1,1),(1,1,1)*.8);
+     );
+     drawpoly(
+        [pos,pos+(keydiff,0),pos+(keydiff,3),pos+(0,3)],
+        color->(0,0,0),size->3
+     );
+
+
+     keydockpos_(n+13)=(-13.6+(n+12)*keydiff*.585,3+pos.y);
+     if(tuningspecial,
+        keydockpos_(n+13)=pos+(keydiff*.5,3);
+
+     );
+  );
+
+);
+keyshifts=(.6,.8,0,.6,.7,.8);
+drawkeyb(n,mode):=(
+  regional(code,nn);
+  code=keycodes_(n+13);
+
+  if(code_1==1, //white key
+     pos=(keyfrom+(code_3*7+(code_2-1)+keyshifts_(code_2))*keydiff,-4.5);;
+     fillpoly(
+        [pos,pos+(keydiff*.6,0),pos+(keydiff*.6,2),pos+(0,2)],
+        color->if(contains(hitkeys,n),(1,1,1)*.4,(0,0,0));
+     );
+     drawpoly(
+        [pos,pos+(keydiff*.6,0),pos+(keydiff*.6,2),pos+(0,2)],
+        color->(0,0,0),size->3
+     );
+   //  keydockpos_(n+13)=pos+(keydiff*.3,2);
+     keydockpos_(n+13)=(-13.6+(n+12)*keydiff*.585,2+pos.y);
+
+    // drawtext(pos+(.1,.1),code);
+
+  );
+
+);
+
+forall(-12..24,drawkeyw(#,0););
+if(analyser!="scales" &!tuningspecial,
+   forall(-12..24,drawkeyb(#,0););
+);
+//drawall(keydockpos);
+apply(tones,draw((mov(#_2),0),keydockpos_(#_1),color->(.5,.5,1),size->if(contains(hitkeys,(#_1)-13),4,1)));
+
+
+
+draw((4,13),(10,13),color->(1,1,1),size->2,alpha->0.2);
+
+
+/*
+apply(buttons,b,
+  box=b_3;
+  selected=b_4;
+  fillpoly(box,color->if(selected,(1,1,1)*.3,(1,1,1)*.4));
+  drawpoly(box,color->(1,1,1),size->if(selected,3,1));
+  drawtext(box_1+(.2,.3),b_2,size->20,color->(1,1,1));
+);
+
+*/
+
+
+//////////////////////////////
+//....DRAW THE UI
+//////////////////////////////
+
+//....TOP LEVEL UI
+drawimage(timbrebuttonpos,timbrebuttonpos+(mainiconextend,0),"timbreIcon",alpha->if(timbreselected,1,.5));
+drawimage(tuningbuttonpos,tuningbuttonpos+(mainiconextend,0),"tuningIcon",alpha->if(tuningselected,1,.5));
+drawimage(analysebuttonpos,analysebuttonpos+(mainiconextend,0),"analyseIcon",alpha->if(analyseselected,1,.5));
+drawtext(timbrebuttonpos+(mainiconextend/2,.4),lang("Timbre","timbre"),color->(1,.8,.8),align->"center",size->25,alpha->if(timbreselected,1,.7));
+drawtext(tuningbuttonpos+(mainiconextend/2,.4),lang("Stimmung","tuning"),color->(.8,.8,1),align->"center",size->25,alpha->if(tuningselected,1,.7));
+drawtext(analysebuttonpos+(mainiconextend/2,.4),lang("Analyse","analyse"),color->(.8,1,.8),align->"center",size->25,alpha->if(analyseselected,1,.7));
+
+if(!timbreselected,
+  Beats.visible=false;
+);
+
+///TIMBRE
+if(timbreselected,
+
+
+Beats.visible=true;
+Beats.y=(timbrebox_1_2+1);
+bmin=1+6;
+bmax=4+6;
+Beats.x=min(bmax,max(bmin,Beats.x));
+beats=(Beats.x-bmin)/(bmax-bmin);
+println("BEATS "+beats);
+beating=((beats~!=0)%tonehold);//TODO THis was a quickhack
+
+
+  draw(timbrebuttonpos+(mainiconextend,mainiconextend/2),timbrebuttonpos+(mainiconextend+4.9,mainiconextend/2),color->(1,1,1),size->2);
+  fillpoly(timbrebox,color->(1,.5,.5)*.3,alpha->.9);
+  drawpoly(timbrebox,color->(1,1,1),size->2);
+  draw((bmin,Beats.y),(bmax,Beats.y),color->(1,1,1)*.7);
+
+
+apply(1..8,i,
+connect(
+  apply(0..100,xx=#/100;
+  ((base_i*(1-xx)+top_i*(xx)+(-harm_i*2*sin(xx*2*pi*i^sp),0)))
+),color->(1,1,1)
+);
+);
+
+drawimage((bmin-2,Beats.y-.3),(bmin-.5,Beats.y-.3),"beat2");
+drawimage((bmax+.5,Beats.y-.3),(bmax+2,Beats.y-.3),"beat1");
+
+
+
+
+);
+
+
+if(showequalizer,
+  draw(PL+(1.5,0),PL,arrow->true,color->(1,1,1));
+  draw(PR-(1.5,0),PR,arrow->true,color->(1,1,1));
+  drawtext((PL+PR)/2+(0,-.2),size->24,align->"center",lang("Spreizung=","spread=")+format(sp,2),color->(1,1,1));
+//drawtext(PL+(0,7),size->20,"timbre",color->(1,1,1));
+//drawtext((4,14),size->20,"prime tone",color->(1,1,1));
+//drawtext((4,12.2),size->16,round(fr)+"Hz",color->(1,1,1));
+
+
+  draw(SL+(1.5,0),SL,arrow->true,color->(1,1,1));
+  draw(SR-(1.5,0),SR,arrow->true,color->(1,1,1));
+  drawtext((SL+SR)/2+(0,-.2),size->24,align->"center",lang("Oktave=","octave=")+format(ssca,2),color->(1,1,1));
+//drawtext(SL+(0,7),size->20,"timbre",color->(1,1,1));
+);
+
+//THIS HAD TO BE MOVED UP
+/*
+if(tuningselected,
+  draw(tuningbuttonpos+(mainiconextend/2,0),tuningbuttonpos+(mainiconextend/2,-.5),color->(1,1,1),size->2);
+  fillpoly(tuningbox2,color->(.5,.5,1)*.3,alpha->.9);
+  drawpoly(tuningbox2,color->(1,1,1),size->2);
+
+  //draw(tuningdock,(tuningboxsm_1+tuningboxsm_3)/2,color->(1,1,1)*.7,alpha->.9,size->4);
+
+  //fillpoly(tuningboxsm,color->(.5,.5,1)*.5,alpha->1);
+);
+*/
+
+if(analyseselected,
+  draw(analysebuttonpos+(mainiconextend/2,0),analysebuttonpos+(mainiconextend/2,-.5),color->(1,1,1),size->2);
+  fillpoly(analyserbox,color->(.5,1,.5)*.3,alpha->.9);
+  drawpoly(analyserbox,color->(1,1,1),size->2);
+);
+
+
+
+currentbuttons=[];
+if(timbreselected,currentbuttons=buttons_1);
+if(tuningselected,currentbuttons=[]);
+if(analyseselected,currentbuttons=buttons_3);
+
+if(tuningselected,
+   if(tuningtype=="western",
+      currentbuttons=buttons_2_[1,2,3,4,5,6,7,8,9];
+   );
+   if(tuningtype=="indian",
+      currentbuttons=buttons_2_[1,2,3,4,5];
+   );
+   if(tuningtype=="gamelan",
+      currentbuttons=buttons_2_[1,2,3,4,5,14,15,16,17,18,19];
+   );
+   if(tuningtype=="theory",
+      currentbuttons=buttons_2_[1,2,3,4,5];
+   );
+   if(tuningtype=="free",
+      currentbuttons=buttons_2_[1,2,3,4,5];
+   );
+
+);
+apply(currentbuttons,b,
+  box=b_3;
+  selected=b_4;
+
+  text=b_2;
+  tok=tokenize(text,"_");
+  if(length(tok)==2,
+    drawimage(box_1,box_2,tok_1,alpha->if(selected,1,.6));
+    drawtext(box_1+(0,.3)+(1.15,0),tok_2,align->"center",size->18,color->(1,1,1),alpha->if(selected,1,.6));
+  ,
+  
+    fillpoly(box,color->if(selected,(1,1,1)*.3,(1,1,1)*.4));
+    drawpoly(box,color->(1,1,1),size->if(selected,3,1));
+    drawtext(box_1+(.2,.3),b_2,size->20,color->(1,1,1));
+  );
+);
+
+if(ftype==2,draw((movorig(1000),0),color->(1,1,1)*.5));
+if(ftype==1,draw((movorig(-1000),0),color->(1,1,1)*.5));
+
+apply(1..20,
+   if(fingerstofreqs_#!=-99,
+       fillcircle((fingerstofreqs_#,0),.7,color ->hue(#/10),alpha->.5);
+   );
+);
+
+if(analyser=="raga",
+
+  drawimage((7.5,8.7),(9,8.7),"leftarrow",alpha->.6);
+  drawimage((10.5,8.7),(12,8.7),"rightarrow",alpha->.6);
+  drawtext((8,10.5),raganame,size->20,color->(1,1,1));
+);
+
+
+//////////////////////////////////
+// INFO SYSTEM
+//////////////////////////////////
+
+infobox(b,to,text):=(
+   draw((b_1+b_3)/2,to,color->(1,1,1),size->4,arrow->true);
+   fillpoly(b,color->(1,1,.5));
+   drawpoly(b,color->(0,0,0));
+   drawtext(b_4+(.3,-.6),text,color->(0,0,0),size->20);
+);
+
+if(info,
+
+if(!timbreselected&!tuningselected&!analyseselected,
+infobox([[-15,4],[-10,4],[-10,6],[-15,6]],(-14,9),
+"This gives acces to all 
+kinds of different tunings.
+Elaborate submenus show up.");
+
+infobox([[-9,5],[-4,5],[-4,7],[-9,7]],(-10,9),
+"Analyse wave forms and  
+frequency aspects here.
+Lots of insight on music.");
+
+
+infobox([[-4,8],[1,8],[1,10],[-4,10]],(-7,10),
+"Sound characteristics can  
+be changed here. 
+Specturm, decay, beating....");
+
+infobox([[-15.5,-1.5],[-10.5,-1.5],[-10.5,0.5],[-15.5,0.5]],(-15,-2.5),
+"Change the mapping to 
+the tone line.
+log(f), f, 1/f all make sense.");
+
+
+
+infobox([[-2.5,-1.5],[2.5,-1.5],[2.5,0.5],[-2.5,0.5]],(-.3,-3.5),
+"Play here or on
+a Midi keyboard.
+You can make Music!");
+
+infobox([[7,2],[12,2],[12,4],[7,4]],(7,0),
+"Tab the line to get 
+continuous sounds.
+Even multitouch works");
+
+if(analyser=="dissonance",
+
+infobox([[-2,3.5],[3,3.5],[3,5.5],[-2,5.5]],(-2,2),
+"This curve shows how
+dissonant intervals may sound.
+But trust your ears ;-)");
+
+)
+
+
+);
+
+
+if(timbreselected,
+
+infobox([[-9,6],[-4,6],[-4,8],[-9,8]],(-1.4,7.5),
+"Get presets of overtones
+and partials here.
+Some smooth, some sharp.");
+
+
+infobox([[-6,1],[-1,1],[-1,3],[-6,3]],(2.5,7.3),
+"Adjust the decay
+of tones here.
+Last button for 'hold'.");
+
+
+infobox([[0,2],[5,2],[5,4],[0,4]],(4.5,9),
+"Select you personal 
+spektrum of overtones.
+Experiment with sound.");
+
+
+infobox([[3,-1],[8,-1],[8,1],[3,1]],Beats-(0,.5),
+"Create beats by splitting  
+the tone in two nearby.
+This makes rich vibrato.");
+
+infobox([[7,2],[12,2],[12,4],[7,4]],SR-(.5,.5),
+"Spread the frequencies  
+of your chosen scale.
+Interesting but hard for ears.");
+
+infobox([[10.5,-1],[15.5,-1],[15.5,1],[10.5,1]],PR-(0,.2),
+"Spread specturm of   
+your overtones.
+Bell sounds emerge.");
+);
+
+
+if(analyseselected,
+infobox([[-15.5,-3],[-10.5,-3],[-10.5,-1],[-15.5,-1]],(-14,3.8),
+"Two tones on the x and y   
+channels of an oscillograph.
+Create images from sound.");
+
+
+infobox([[-12,0],[-7,0],[-7,2],[-12,2]],(-11,3.8),
+"Select tones and
+observe frequrency ratios.
+See fractions and roots.");
+
+
+infobox([[-9,3],[-4,3],[-4,5],[-9,5]],(-13.2,6.3),
+"Sound is air movement in time.   
+See the waves of the sound.
+generated by your play.");
+
+
+infobox([[-8,6],[-3,6],[-3,8],[-8,8]],(-11,7),
+"This curve indicates how    
+dissonant a tone is vs. another.
+The middle C is the reference.");
+
+if(analyser=="dissonance",
+
+infobox([[-2,3.5],[3,3.5],[3,5.5],[-2,5.5]],(-2,2),
+"This curve shows how
+dissonant intervals may sound.
+But trust your ears ;-)");
+
+);
+
+
+if(analyser=="lissajous",
+
+infobox([[-2,2],[3,2],[3,4],[-2,4]],(0,7),
+"This is an oscillograph.
+It feeds the curves of the two
+lowest tones the x/y-channels.");
+
+);
+
+
+
+);
+
+
+if(tuningselected,
+if(analyser=="tonnetz",
+infobox([[-15.5,-1.5],[-10.5,-1.5],[-10.5,0.5],[-15.5,0.5]],(-13,2.5),
+"Select from different  
+classical tuning systems.
+Small changes–big differences.");
+
+infobox([[-6,-1.5],[-1,-1.5],[-1,0.5],[-6,0.5]],(-3.5,3.2),
+"The tonnetz helps to 
+understand our tone system.
+Triangles are chords.");
+
+
+infobox([[3,-.5],[8,-.5],[8,1.5],[3,1.5]],(5,3.2),
+"You can play here by
+pressing circles and edges.
+Colors indicate detuning.");
+
+);
+
+if(analyser=="raga",
+infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
+"Here you see different  
+intervals in a selection of tones.
+The fingerprint of a scale.");
+
+infobox([[-8.5,1.5],[-3.5,1.5],[-3.5,3.5],[-8.5,3.5]],(-5.2,6),
+"Indian Ragas refer 
+to a central chord.
+Turn on bordun tone here.");
+
+
+infobox([[0,-1.5],[5,-1.5],[5,.5],[0,.5]],(2.5,2.5),
+"Indian Raga scales are
+build from 22 tones.
+This is the tonnetz of Raga.");
+
+
+
+infobox([[8,6],[13,6],[13,8],[8,8]],(10,10),
+"Select different Raga scales
+by pressing these arrows.
+Like major and minor but richer.");
+
+);
+
+
+if(analyser=="gamelan",
+infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
+"Here you see different  
+intervals in a selection of tones.
+The fingerprint of a scale.");
+
+
+
+
+
+infobox([[3,2],[8,2],[8,4],[3,4]],(1,5),
+"Select Gamelan scales
+by pressing these buttons.
+Beauty of petatonics.");
+
+);
+
+
+if(analyser=="scales",
+infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
+"Here you see different  
+intervals in a selection of tones.
+The fingerprint of a scale.");
+
+
+infobox([[-2,-1.5],[3,-1.5],[3,0.5],[-2,0.5]],SC-(0,.5),
+"The position of this point 
+determines the scale.
+Free your ears for the new.");
+
+
+infobox([[5,4],[10,4],[10,6],[5,6]],SC1+(0,.3),
+"Select the number of
+tones in your scale here.
+Less is more!");
+
+);
+
+
+if(analyser=="free",
+infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
+"Here you see different  
+intervals in a selection of tones.
+The fingerprint of a scale.");
+
+
+infobox([[-4,-1.5],[1,-1.5],[1,0.5],[-4,0.5]],(-1,2),
+"Here you can completely  
+freely design a scale.
+The burdon of freedom.");
+
+
+infobox([[5,4],[10,4],[10,6],[5,6]],FREEN+(0,.3),
+"Select the number of
+tones in your scale here.
+Less is more!");
+
+);
+
+
+
+);
+);
+
+</script>
+<script id="cskeydown" type="text/x-cindyscript">
+  println("KEYDOWN");
+
+apply(1..19,
+   if(key()==keys_#,
+     newkey=59+#;
+     if(!contains(hitkeys,#-1),
+         callmidi(144,59+#,100));
+     )
+);
+
+
+</script>
+
+<script id="cskeyup" type="text/x-cindyscript">
+  println("KEYUP");
+apply(1..19,
+   if(key()==keys_#,callmidi(128,59+#,127));
+);
+
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+        {name: "FR", type: "Free", pos: [7,7], color: [1.0, 1.0, 1.0],narrow:80,alpha:0.2},
+
+      {name: "PL", type: "Free", pos: [8,7], color: [1.0, 1.0, 1.0],narrow:80},
+    {name: "PR", type: "Free", pos: [15,7], color: [1.0, 1.0, 1.0],narrow:80,pinned:true},
+        {name: "SR", type: "Free", pos: [7,6], color: [1.0, 1.0, 1.0],narrow:80,pinned:true},
+
+      {name: "SL", type: "Free", pos: [8,6], color: [1.0, 1.0, 1.0],narrow:80},
+      {name: "DA", type: "Free", pos: [2,2], color: [1.0, 1.0, 1.0],narrow:80},
+      {name: "Beats", type: "Free", pos: [1.5,5], color: [1.0, 1.0, 1.0],narrow:80,pinned:true},
+     {name: "FREEN", type: "Free", pos: [-15,1], color: [1.0, 1.0, 1.0],narrow:80},
+     {name: "SC", type: "Free", pos: [-15,1], color: [1.0, 1.0, 1.0],narrow:80},
+          {name: "SC1", type: "Free", pos: [9,1], color: [1.0, 1.0, 1.0],narrow:80},
+          {name: "MID", type: "Free", pos: [10,3], color: [1.0, 1.0, 1.0],narrow:80},
+
+
+  //  {name: "A", type: "Free", pos: [4.0, 0.0, 0.849123854153823], color: [1.0, 1.0, 1.0],narrow:80},
+    {name: "FREE0", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE1", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE2", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE3", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE4", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE5", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE6", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE7", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE8", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE9", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE10", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE11", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE12", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE13", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE14", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE15", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE16", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE17", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE18", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE19", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE20", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE21", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE22", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+    {name: "FREE23", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 1.0, 1.0], visible: false,narrow:40},
+
+    {name: "B", type: "Free", pos: [-3.2, -4.0, -0.4], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "C", type: "Free", pos: [4.0, 3.5, 0.5], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "sa", type: "Segment", color: [1,1,1], args: ["B", "C"]},
+    {name: "D", type: "Free", pos: [-3.6000000000000005, -4.0, -0.4], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "E", type: "Free", pos: [4.0, 3.111111111111111, 0.4444444444444444], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "sb", type: "Segment", color: [1,1,1], args: ["D", "E"]},
+    {name: "F", type: "Free", pos: [4.0, 4.0, 0.4], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "G", type: "Free", pos: [4.0, 2.8, 0.4], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "sc", type: "Segment", color: [1,1,1], args: ["F", "G"]},
+    {name: "H", type: "Free", pos: [4.0, 3.6363636363636362, 0.36363636363636365], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "K", type: "Free", pos: [4.0, 2.5454545454545454, 0.36363636363636365], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "sd", type: "Segment", color: [1,1,1], args: ["H", "K"]},
+    {name: "L", type: "Free", pos: [4.0, 3.3333333333333326, 0.33333333333333337], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "M", type: "Free", pos: [4.0, 2.3333333333333335, 0.33333333333333337], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "se", type: "Segment", color: [1,1,1], args: ["L", "M"]},
+    {name: "N", type: "Free", pos: [4.0, 3.076923076923077, 0.3076923076923077], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "O", type: "Free", pos: [4.0, 2.1538461538461537, 0.3076923076923077], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "sf", type: "Segment", color: [1,1,1], args: ["N", "O"]},
+    {name: "P", type: "Free", pos: [4.0, 2.8571428571428577, 0.2857142857142857], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "Q", type: "Free", pos: [4.0, 2.0, 0.2857142857142857], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "sg", type: "Segment", color: [1,1,1], args: ["P", "Q"]},
+    {name: "R", type: "Free", pos: [4.0, 2.6666666666666656, 0.26666666666666666], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "S", type: "Free", pos: [4.0, 1.8666666666666667, 0.26666666666666666], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "ssh", type: "Segment", color: [1,1,1], args: ["R", "S"]},
+    {name: "T", type: "PointOnSegment", pos: [-3.2, -4.0, -0.4], color: [1,.5,.5], args: ["sa"],size:3,narrow:80,pinned:true},
+    {name: "U", type: "PointOnSegment", pos: [-3.6000000000000005, -4.0, -0.4], color: [1,.5,.5], args: ["sb"],size:3,narrow:80,pinned:true},
+    {name: "V", type: "PointOnSegment", pos: [-3.9999999999999996, -4.0, -0.4], color: [1,.5,.5], args: ["sc"],size:3,narrow:80,pinned:true},
+    {name: "W", type: "PointOnSegment", pos: [4.0, 3.6363636363636354, 0.3636363636363637], color: [1,.5,.5], args: ["sd"],size:3,narrow:80,pinned:true},
+    {name: "X", type: "PointOnSegment", pos: [4.0, 2.9999999999999987, 0.3333333333333333], color: [1,.5,.5], args: ["se"],size:3,narrow:80,pinned:true},
+    {name: "Y", type: "PointOnSegment", pos: [4.0, 2.2381334352944777, 0.3076923076923076], color: [1,.5,.5], args: ["sf"],size:3,narrow:80,pinned:true},
+    {name: "Z", type: "PointOnSegment", pos: [4.0, 2.0782667613448718, 0.28571428571428575], color: [1,.5,.5], args: ["sg"],size:3,narrow:80,pinned:true},
+    {name: "P0", type: "PointOnSegment", pos: [4.0, 1.8666666666666665, 0.26666666666666666], color: [1,.5,.5], args: ["ssh"],size:3, printname: "$P_{0}$",narrow:80,pinned:true}
+  ],
+  images:{
+    timbreIcon:"icons/TimbreIcon.png",
+    tuningIcon:"icons/TuningIcon.png",
+    analyseIcon:"icons/AnalyseIcon.png",
+    ratiosIcon:"icons/ratiosIcon.png",
+    dissonanceIcon:"icons/dissonanceIcon.png",
+    lissajousIcon:"icons/lissajousIcon2.png",
+    tonnetzIcon:"icons/tonnetzIcon.png",
+    fifthIcon:"icons/FifthIcon.png",
+    waveformIcon:"icons/WaveFormIcon.png",
+    sineTimbreIcon:"icons/Sine.png",
+    sawTimbreIcon:"icons/Saw.png",
+    squareTimbreIcon:"icons/Square.png",
+    triangleTimbreIcon:"icons/Triangle.png",
+    pulseTimbreIcon:"icons/Pulse.png",
+    dampTimbreIcon:"icons/DampIcon.png",
+    holdTimbreIcon:"icons/HoldIcon.png",
+    pickTimbreIcon:"icons/PickIcon.png",
+    spiralIcon:"icons/SpiralIcon.png",
+    westernIcon:"icons/WesternIcon.png",
+    indianIcon:"icons/IndianIcon.png",
+    gamelanIcon:"icons/BaliIcon.png",
+    freeScaleIcon:"icons/FreeScaleIcon.png",
+    drohne:"icons/Drohne.png",
+    leftarrow:"icons/Left.png",
+    beat1:"icons/BeatT1.png",
+    beat2:"icons/BeatT2.png",
+    rightarrow:"icons/Right.png",
+    caution:"icons/Caution.png"
+   
+  },
+  ports: [{
+    id: "CSCanvas",
+    //width: 1920,
+    //height: 1080,
+    virtualwidth: 1920,
+    virtualheight: 1080,
+    fill: "window",
+    transform: [{visibleRect: [-16,12,16,-6]}],
+    grid: 1.0,
+    background: "rgb(30,30,30)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+
+        <script>
+
+    //Bare minimum JS code to read midi input
+    //Adapted from https://github.com/cwilso/WebMIDIAPIShim
+
+    var midi;
+    var log = document.getElementById("midi-log");
+    init();
+
+    function init() {
+      logText("Initializing MIDI...");
+      navigator.requestMIDIAccess().then( onSuccess, onFailure ); //get midi access
+    }
+
+    function onSuccess( access ) { 
+
+      midi = access;
+      var inputs = midi.inputs;
+
+      logText("Found " + inputs.size + " MIDI input(s)");
+
+      //connect to first device found
+      if(inputs.size > 0) {
+        var iterator = inputs.values(); // returns an iterator that loops over all inputs
+     //   console.log(inputs);
+        for(i=0;i<inputs.size;i++) {
+        var input = iterator.next().value; // get the first input
+      //    logText("Connected  input: " +i+" ==> "+ input.name);
+          input.onmidimessage = handleMIDIMessage;
+        }
+      }
+    }
+
+    function onFailure( err ) {
+      logText("MIDI Init Error. Error code: " + err.code);
+    }
+
+    function handleMIDIMessage(event){
+
+      //event.data & event.receivedTime are populated
+      //event.data has 3 components:
+      //0) The device id
+      //1) The controller id
+      //2) The controller value (typically in the range 0 - 127)
+
+      if (event.data.length === 3) {
+        console.log(event.data);
+        cdy.evokeCS("callmidi("+event.data[0]+","+event.data[1]+","+event.data[2]+")");
+      //  logText('controller id: ' + event.data[1] +  ', value: ' + event.data[2]);
+      }
+    }
+
+    function logText(str){
+      /*
+      log.innerHTML += str;
+      log.innerHTML += "<br>";
+      log.scrollTop = log.scrollHeight;
+      */
+    }
+
+  </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
