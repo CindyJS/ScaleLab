@@ -590,7 +590,20 @@ linesh=0;
 hitkeys=[];
 linesoftones=zerovector(120);
 keys=["A","W","S","E","D","F","T","G","Z","H","U","J","K","O","L","P","º","Þ","Ü"];
+fingeronkeycount=zerovector(180);
+
+
 callmidi(m,a,b):=(
+
+ if(m==144,fingeronkeycount_(a)=fingeronkeycount_(a)+1);  
+ if(m==128,fingeronkeycount_(a)=max(0,fingeronkeycount_(a)-1)); 
+  
+ if(m==144 & fingeronkeycount_(a)==1, callmidi1(m,a,b));
+ if(m==128 & fingeronkeycount_(a)==0, callmidi1(m,a,b));
+);
+
+
+callmidi1(m,a,b):=(
  if(m==144,hitkeys=set(hitkeys++[a-60]));  
  if(m==128,hitkeys=set(hitkeys--[a-60]));  
  mdia=a;
@@ -752,12 +765,11 @@ if(x==8,er=exp((sp-1)*log(8)));
 er);
 
 xdis(p):=(
-//xx=exp(p.x*log(8));
-xx=exp((p.x*3-1)*log(2));
+xxd=exp((p.x*3-1)*log(2));
 sum=0;
 repeat(8,ii,
 repeat(8,jj,
-sum=sum+dis(ii*xx*fdiss*spr(ii),jj*f1*spr(jj))*harm_ii*harm_jj*64;
+sum=sum+dis(ii*xxd*fdiss*spr(ii),jj*f1*spr(jj))*harm_ii*harm_jj*64;
 ));
 sum=sum/5;
 sum1=floor(sum*256)/256;
@@ -789,7 +801,7 @@ movorig(x):=
       );
 ;
 
-invmov(x):=((x+13.6)/26.8*36-12);
+invmovPure(x):=((x+13.6)/26.8*36-12);
 
 invmov(x):=
   if(ftype==0,((x+13.6)/26.8*36-12),
@@ -825,7 +837,7 @@ moving=false;
 
 ftype=0;// 0--> LOG(F)   1-->F    2-->  -1/F
 
-mov(x):=(x+12)/36*26.8-13.6;
+movPure(x):=(x+12)/36*26.8-13.6;
 
 dtune(note):=(
   fre=tunenote(note);
@@ -1054,7 +1066,7 @@ if(showequalizer,
   pos=mouse(id->multiid()).xy;
   callmidi(128,60+fingerstokeys_(dictnumb),127);
   fingerstokeys_(dictnumb)=-99;
-  releasekeyboard(pos);
+//  releasekeyboard(pos);
   if(fingerstofreqs_dictnumb!=-99,
      stopfromline(dictnumb);
   );
@@ -1353,7 +1365,9 @@ fillpoly([[-16,-6],[16,-6],[16,12],[-16,12]],color->(.1,0,0));
 
 //drawtext((0,2),activelines,color->(1,1,1),size->20);
 //drawtext((-6,1),notesoflines,color->(1,1,1),size->20);
-//drawtext((-6,3),beating+" "+format(beats,14),color->(1,1,1),size->20);
+//drawtext((-14,4),multiidlist(),color->(1,1,1),size->20);
+
+//drawtext((-16,3),fingeronkeycount,color->(1,1,1),size->20);
 
 //drawtext((0,0),activelines,color->(1,1,1),size->20);
 //drawtext((-15.9,-1),mdim+" "+mdia+" "+mdib,color->(1,1,1)*.3,size->20);
@@ -1389,6 +1403,7 @@ basefr=fr;
 PL.y=7.8;
 PL.size=0;
 PL.x=5;
+SL.x=5;
 PR.y=7.8;
 
 if(SR.x>15,SR.x=15);
@@ -1396,7 +1411,6 @@ if(PR.x>15,PR.x=15);
 
 if(SR.x<SL.x+1,SR.x=SL.x+1);
 if(PR.x<PL.x+1,PR.x=PL.x+1);
-
 SL.y=7;
 SL.size=0;
 SL.x=5;
@@ -1479,11 +1493,37 @@ if(tuningselected,
 
 
 // DISSONACNE CURVE
+Diss.visible=false;
+Diss.y=-2.5;
 
 if(analyser=="dissonance",
 //  connect(sample,color->(.5,1,.5),size->2);
 
+
+
+if(!info,Diss.visible=true);
+
+Diss.visible=true;
+
+nearpos=sort(select(keydockpos,#!=0),|#,Diss|)_1;
+Diss.xy=nearpos;
+xx=round(invmovPure(Diss.x));
+//Diss.x=movPure(xx);
+/*
+drawtext(Diss+(.1,.1),color->(1,1,1),invmov(Diss.x));
+drawtext(Diss+(.1,.8),color->(1,1,1),keyforposition(Diss));
+drawtext(Diss+(.1,.8),color->(1,1,1),keydockpos);
+
+draw(nearpos,size->20);
+*/
+
+
 fdiss=f1;
+tuneno=tunenote(xx);
+fdiss=1/tuneno*f1;
+
+
+//drawtext(Diss+(.1,1),color->(1,1,1),fdiss);
 
   freqs=sort(apply(hitkeys,tunenote(#)));
  // drawtext((0,1),freqs,color->(1,1,1),size->20);
@@ -1669,7 +1709,7 @@ if(analyser!="lissajous",
  drawtext((5,1.4),"Dämpfung",color->(1,1,1)*.6,size->16);
  DA.y=2;
  DA.x=min(9,max(DA.x,5));
- oszidamp=(DA.x-5)/8;
+ oszidamp=(DA.x-5)/20;
  freqs=sort(apply(hitkeys,tunenote(#)));
 
   if(freqs==[],
@@ -1677,7 +1717,7 @@ if(analyser!="lissajous",
      freqs=sort(apply(fingfr,invmov(#)));
      freqs=apply(freqs,x,((2^(1/12))^x));
   );
-  damping=(oszidamp!=0);
+  damping=(oszidamp>.00001);
   dt=seconds()-timestamp;
 //  dt=.01;
   timestamp=seconds();
@@ -1950,10 +1990,13 @@ erg1/|erg1|;
 if(analyser!="scales",
   SC.visible=false;
   SC1.visible=false;
+
 );
 if(analyser=="scales",
   SC.visible=true;
   SC1.visible=true;
+  tuningspecial=true;
+
   scmid=(0,5);
   drawcircle((0,5),3,color->(1,1,1)*.4,size->9);
   draw((4,2),(10,2),color->(1,1,1));
@@ -2241,11 +2284,13 @@ drawkeyb(n,mode):=(
 );
 
 forall(-12..24,drawkeyw(#,0););
-if(analyser!="scales" &!tuningspecial,
+if(!tuningspecial,
    forall(-12..24,drawkeyb(#,0););
 );
 //drawall(keydockpos);
-apply(tones,draw((mov(#_2),0),keydockpos_(#_1),color->(.5,.5,1),size->if(contains(hitkeys,(#_1)-13),4,1)));
+apply(tones,
+  draw((mov(#_2),0),keydockpos_(#_1),color->(.5,.5,1),size->if(contains(hitkeys,(#_1)-13),4,1))
+);
 
 
 
@@ -2323,7 +2368,6 @@ if(showequalizer,
   drawtext((PL+PR)/2+(0,-.2),size->24,align->"center",lang("Spreizung=","spread=")+format(sp,2),color->(1,1,1));
 //drawtext(PL+(0,7),size->20,"timbre",color->(1,1,1));
 //drawtext((4,14),size->20,"prime tone",color->(1,1,1));
-//drawtext((4,12.2),size->16,round(fr)+"Hz",color->(1,1,1));
 
 
   draw(SL+(1.5,0),SL,arrow->true,color->(1,1,1));
@@ -2410,59 +2454,86 @@ if(analyser=="raga",
 );
 
 
+
+
 //////////////////////////////////
 // INFO SYSTEM
 //////////////////////////////////
 
-infobox(b,to,text):=(
+infobox(b,to,text1,text2):=(
+if(lang==0,text=text2,text=text1);
    draw((b_1+b_3)/2,to,color->(1,1,1),size->4,arrow->true);
    fillpoly(b,color->(1,1,.5));
    drawpoly(b,color->(0,0,0));
    drawtext(b_4+(.3,-.6),text,color->(0,0,0),size->20);
 );
+drawtext((-14,0.5),size->16,">>> "+tuningspecial,color->(1,1,1));
 
-if(info,
+
+if(info ,
+
 
 if(!timbreselected&!tuningselected&!analyseselected,
 infobox([[-15,4],[-10,4],[-10,6],[-15,6]],(-14,9),
 "This gives acces to all 
 kinds of different tunings.
-Elaborate submenus show up.");
+Elaborate submenus show up.",
+"Finde hier Zugang zu
+jeglicher Art von Stimmung.
+Viele Untermenus erscheinen!");
 
 infobox([[-9,5],[-4,5],[-4,7],[-9,7]],(-10,9),
 "Analyse wave forms and  
 frequency aspects here.
-Lots of insight on music.");
+Lots of insight on music.",
+"Analysiere hier Frequenz,
+Schwingungen und mehr.
+Tiefe Einblicke warten.");
 
 
 infobox([[-4,8],[1,8],[1,10],[-4,10]],(-7,10),
 "Sound characteristics can  
 be changed here. 
-Specturm, decay, beating....");
+Spectrum, decay, beating....",
+"Gestalte den Klang nach
+eigenen Vorstellungen.
+Spektrum, Decay, Vibrato...");
 
 infobox([[-15.5,-1.5],[-10.5,-1.5],[-10.5,0.5],[-15.5,0.5]],(-15,-2.5),
 "Change the mapping to 
 the tone line.
-log(f), f, 1/f all make sense.");
+log(f), f, 1/f all make sense.",
+"Verändere die Zuordnung
+der Tasten zur Tonlinie.
+log(f), f und 1/f sind möglich.");
 
 
 
 infobox([[-2.5,-1.5],[2.5,-1.5],[2.5,0.5],[-2.5,0.5]],(-.3,-3.5),
 "Play here or on
 a Midi keyboard.
-You can make Music!");
+You can make Music!",
+"Spiele hier oder auf
+einem Midi Keyboard.
+Erschaffe eigene Musik!");
 
 infobox([[7,2],[12,2],[12,4],[7,4]],(7,0),
 "Tab the line to get 
 continuous sounds.
-Even multitouch works");
+Even multitouch works",
+"Nutze die Linie für
+kontinuierlichen Klang.
+Mit einem oder mehr Fingern.");
 
 if(analyser=="dissonance",
 
 infobox([[-2,3.5],[3,3.5],[3,5.5],[-2,5.5]],(-2,2),
 "This curve shows how
 dissonant intervals may sound.
-But trust your ears ;-)");
+But trust your ears ;-)",
+"Die Kurve zeigt, wie
+dissonant zwei Tönen klingen.
+Aber trau' Deinen Ohren ;-)");
 
 )
 
@@ -2475,35 +2546,53 @@ if(timbreselected,
 infobox([[-9,6],[-4,6],[-4,8],[-9,8]],(-1.4,7.5),
 "Get presets of overtones
 and partials here.
-Some smooth, some sharp.");
+Some smooth, some sharp.",
+"Finde hier Vorschläge
+für Oberton-Einstellungen.
+Teils weich, teils hart.");
 
 
 infobox([[-6,1],[-1,1],[-1,3],[-6,3]],(2.5,7.3),
 "Adjust the decay
 of tones here.
-Last button for 'hold'.");
+Last button for 'hold'.",
+"Stelle hier ein, wie
+die Töne verklingen sollen.
+Unterster Button für 'nicht'.");
 
 
 infobox([[0,2],[5,2],[5,4],[0,4]],(4.5,9),
 "Select you personal 
 spektrum of overtones.
-Experiment with sound.");
+Experiment with sound.",
+"Wähle ein individuelles
+Oberton-Spektrum aus.
+Experimentiere mit Klängen.");
 
 
 infobox([[3,-1],[8,-1],[8,1],[3,1]],Beats-(0,.5),
 "Create beats by splitting  
 the tone in two nearby.
-This makes rich vibrato.");
+This makes rich vibrato.",
+"Teile den Ton in zwei,
+die ihm nah sind.
+Hörbares Vibrato entsteht.");
 
 infobox([[7,2],[12,2],[12,4],[7,4]],SR-(.5,.5),
 "Spread the frequencies  
 of your chosen scale.
-Interesting but hard for ears.");
+Interesting but hard for ears.",
+"Spreize die Frequenzen
+der gewählten Tonleiter.
+Interessant, aber schräg.");
 
 infobox([[10.5,-1],[15.5,-1],[15.5,1],[10.5,1]],PR-(0,.2),
-"Spread specturm of   
+"Spread spectrum of   
 your overtones.
-Bell sounds emerge.");
+Bell sounds emerge.",
+"Spreize das Spektrum
+der gewählten Obertöne.
+Fast wie Glockengeläut.");
 );
 
 
@@ -2511,32 +2600,47 @@ if(analyseselected,
 infobox([[-15.5,-3],[-10.5,-3],[-10.5,-1],[-15.5,-1]],(-14,3.8),
 "Two tones on the x and y   
 channels of an oscillograph.
-Create images from sound.");
+Create images from sound.",
+"Zwei Töne an
+einen Oszillographen.
+So erzeugt Klang Bilder.");
 
 
 infobox([[-12,0],[-7,0],[-7,2],[-12,2]],(-11,3.8),
 "Select tones and
-observe frequrency ratios.
-See fractions and roots.");
+observe frequency ratios.
+See fractions and roots.",
+"Ermittle das Verhältnis der
+Frequenzen mehrerer Töne.
+Brüche und Wurzeln.");
 
 
 infobox([[-9,3],[-4,3],[-4,5],[-9,5]],(-13.2,6.3),
 "Sound is air movement in time.   
-See the waves of the sound.
-generated by your play.");
+See the waves of the sound
+generated by your play.",
+"Töne und Klänge sind 
+Schwingungen in der Luft.
+Musik schlägt Wellen.");
 
 
 infobox([[-8,6],[-3,6],[-3,8],[-8,8]],(-11,7),
 "This curve indicates how    
 dissonant a tone is vs. another.
-The middle C is the reference.");
+The middle C is the reference.",
+"Die Kurve zeigt, wie
+dissonant zwei Töne klingen.
+Vergleichston ist das mittlere C.");
 
 if(analyser=="dissonance",
 
 infobox([[-2,3.5],[3,3.5],[3,5.5],[-2,5.5]],(-2,2),
 "This curve shows how
 dissonant intervals may sound.
-But trust your ears ;-)");
+But trust your ears ;-)",
+"Die Kurve zeigt, wie
+dissonant zwei Tönen klingen.
+Vertraue den eigenen Ohren ;-)");
 
 );
 
@@ -2546,7 +2650,10 @@ if(analyser=="lissajous",
 infobox([[-2,2],[3,2],[3,4],[-2,4]],(0,7),
 "This is an oscillograph.
 It feeds the curves of the two
-lowest tones the x/y-channels.");
+lowest tones to the x/y-channels.",
+"Das ist ein Oszillograph
+mit x- und y-Input-Kanal.
+Nimmt zwei tiefste Töne auf.");
 
 );
 
@@ -2560,18 +2667,27 @@ if(analyser=="tonnetz",
 infobox([[-15.5,-1.5],[-10.5,-1.5],[-10.5,0.5],[-15.5,0.5]],(-13,2.5),
 "Select from different  
 classical tuning systems.
-Small changes–big differences.");
+Small changes–big differences.",
+"Wähle aus verschiedenen
+klassischen Stimmungen aus.
+Kleine Änderung–großer Effekt.");
 
 infobox([[-6,-1.5],[-1,-1.5],[-1,0.5],[-6,0.5]],(-3.5,3.2),
 "The tonnetz helps to 
 understand our tone system.
-Triangles are chords.");
+Triangles are chords.",
+"Nutze das Tonnetz, um das
+System der Töne zu begreifen.
+Dreiecke sind Akkorde");
 
 
 infobox([[3,-.5],[8,-.5],[8,1.5],[3,1.5]],(5,3.2),
 "You can play here by
 pressing circles and edges.
-Colors indicate detuning.");
+Colors indicate dissonance.",
+"Nutze die Kreise und 
+Kanten, um Musik zu machen.
+Farben zeigen Verstimmung");
 
 );
 
@@ -2579,25 +2695,37 @@ if(analyser=="raga",
 infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
 "Here you see different  
 intervals in a selection of tones.
-The fingerprint of a scale.");
+The fingerprint of a scale.",
+"Beobachte Intervalle 
+aus einer Gruppe von Tönen.
+Fingerabdruck einer Tonleiter.");
 
 infobox([[-8.5,1.5],[-3.5,1.5],[-3.5,3.5],[-8.5,3.5]],(-5.2,6),
 "Indian Ragas refer 
 to a central chord.
-Turn on bordun tone here.");
+Turn on bordun tone here.",
+"Indische Ragas beziehen sich
+auf einen zentralen Akkord.
+Spiele mit Bordun-Begleitung.");
 
 
 infobox([[0,-1.5],[5,-1.5],[5,.5],[0,.5]],(2.5,2.5),
 "Indian Raga scales are
 build from 22 tones.
-This is the tonnetz of Raga.");
+This is the tonnetz of Raga.",
+"Indische Raga-Skalen
+bestehen aus 7 von 22 Tönen.
+Das entsprechende Tonnetz.");
 
 
 
 infobox([[8,6],[13,6],[13,8],[8,8]],(10,10),
 "Select different Raga scales
 by pressing these arrows.
-Like major and minor but richer.");
+Like major and minor but richer.",
+"Wähle verschiedene Raga-
+Skalen mit Hilfe der Pfeile.
+Vielfältiger als Dur und Moll.");
 
 );
 
@@ -2606,7 +2734,10 @@ if(analyser=="gamelan",
 infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
 "Here you see different  
 intervals in a selection of tones.
-The fingerprint of a scale.");
+The fingerprint of a scale.",
+"Beobachte Intervalle 
+aus einer Gruppe von Tönen.
+Fingerabdruck einer Tonleiter.");
 
 
 
@@ -2615,7 +2746,10 @@ The fingerprint of a scale.");
 infobox([[3,2],[8,2],[8,4],[3,4]],(1,5),
 "Select Gamelan scales
 by pressing these buttons.
-Beauty of petatonics.");
+Beauty of petatonics.",
+"Wähle aus einer Auswahl
+von Gamelan-Stimmungen.
+Die Schönheit der Pentatonik.");
 
 );
 
@@ -2624,19 +2758,28 @@ if(analyser=="scales",
 infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
 "Here you see different  
 intervals in a selection of tones.
-The fingerprint of a scale.");
+The fingerprint of a scale.",
+"Beobachte Intervalle 
+aus einer Gruppe von Tönen.
+Fingerabdruck einer Tonleiter.");
 
 
 infobox([[-2,-1.5],[3,-1.5],[3,0.5],[-2,0.5]],SC-(0,.5),
 "The position of this point 
 determines the scale.
-Free your ears for the new.");
+Free your ears for the new.",
+"Die Position dieses Punktes
+bestimmt die Tonleiter.
+Spitze die Ohren für Neues.");
 
 
 infobox([[5,4],[10,4],[10,6],[5,6]],SC1+(0,.3),
 "Select the number of
 tones in your scale here.
-Less is more!");
+Less is more!",
+"Wähle hier die Anzahl an
+Tönen in der Tonleiter.
+Weniger ist mehr!");
 
 );
 
@@ -2645,26 +2788,37 @@ if(analyser=="free",
 infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
 "Here you see different  
 intervals in a selection of tones.
-The fingerprint of a scale.");
+The fingerprint of a scale.",
+"Beobachte Intervalle 
+aus einer Gruppe von Tönen.
+Fingerabdruck einer Tonleiter.");
 
 
 infobox([[-4,-1.5],[1,-1.5],[1,0.5],[-4,0.5]],(-1,2),
 "Here you can completely  
 freely design a scale.
-The burdon of freedom.");
+The burdon of freedom.",
+"Erstelle hier eine 
+Tonleiter nach Geschmack.
+Die Qual der Wahl.");
 
 
 infobox([[5,4],[10,4],[10,6],[5,6]],FREEN+(0,.3),
 "Select the number of
 tones in your scale here.
-Less is more!");
+Less is more!",
+"Wähle hier die Anzahl an
+Tönen in der Tonleiter.
+Weniger ist mehr!");
+);
+
+);
 
 );
 
 
 
-);
-);
+
 
 </script>
 <script id="cskeydown" type="text/x-cindyscript">
@@ -2700,6 +2854,8 @@ var cdy = CindyJS({
   },
   angleUnit: "°",
   geometry: [
+          {name: "Diss", type: "Free", pos: [-5,0], color: [1.0, 1.0, 1.0],narrow:80,alpha:1},
+
         {name: "FR", type: "Free", pos: [7,7], color: [1.0, 1.0, 1.0],narrow:80,alpha:0.2},
 
       {name: "PL", type: "Free", pos: [8,7], color: [1.0, 1.0, 1.0],narrow:80},
