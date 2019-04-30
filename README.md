@@ -5,7 +5,7 @@ The exhibit is an interactive piano, where the tuning and timbre can be interact
 
 It is based on the [CindyJS](https://cindyjs.org)-framework.
 
-[Online version](https://raw.githack.com/CindyJS/ScaleLab/master/index.html) through githack.com.
+[Online version](https://raw.githack.com/CindyJS/ScaleLab/master/index.html) served through githack.com.
 
 ## Author & License
 Created by [Jürgen Richter-Gebert](https://geo.ma.tum.de/en/people/juergen-richter-gebert.html).
