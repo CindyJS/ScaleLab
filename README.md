@@ -3,6 +3,8 @@
 This is part of the Lalalab exhibition of [IMAGINARY](https://lalalab.imaginary.org).
 The exhibit contains an interactive piano, where the tuning and timbre can be interactively modified and analyzed through an attached MIDI-keyboard and touch-screen.
 
+![Screenshot of ScaleLab](SL.png)
+
 It is based on the [CindyJS](https://cindyjs.org)-framework.
 
 ## Installation
