@@ -1634,8 +1634,9 @@ connect(apply(1..1000,
 
 // CIRCLE OF FIFTH
 
-tonenames=("$C$","$C^\sharp$","$D$","$E^\flat$","$E$","$F$","$F^\sharp$","$G$","$A^\flat$","$A$","$B^\flat$","$H$");
-
+tonenames=lang(("$C$","$C^\sharp$","$D$","$E^\flat$","$E$","$F$","$F^\sharp$","$G$","$A^\flat$","$A$","$B^\flat$","$H$"),
+               ("$C$","$C^\sharp$","$D$","$E^\flat$","$E$","$F$","$F^\sharp$","$G$","$A^\flat$","$A$","$A^\flat$","$B$")
+);
 if(analyser=="circle",
    tonset=set(apply(hitkeys,mod(#,12)));
    rad=3;
@@ -1901,7 +1902,9 @@ if(oldpt!=(0,0),
 
 
 ////TONNETZ
-qzirkel=["$C$","$G$","$D$","$A$","$E$","$H$","$F\sharp$","$C\sharp$","$G\sharp$","$E\flat$","$B\flat$","$F$"];
+qzirkel=lang(["$C$","$G$","$D$","$A$","$E$","$H$","$F\sharp$","$C\sharp$","$G\sharp$","$E\flat$","$B$","$F$"],
+             ["$C$","$G$","$D$","$A$","$E$","$B$","$F\sharp$","$C\sharp$","$G\sharp$","$E\flat$","$B\flat$","$F$"]
+           );
 toneind(i,j):=(
    ind=mod(i+4*j-10,12)+1;
    ind;
@@ -2226,10 +2229,15 @@ ragafrsort=(
 ragafr=[256/243,  128/81, 32/27, 16/9, 4/3, 1 , 3/2, 9/8,  27/16, 81/64, 243/128, 729/512,
 10/9, 5/3,5/4,15/8,45/32,16/15,8/5,6/5,9/5,27/20];
 ragafrg=apply(ragafr,myguess(#));
-raganames=["$D\flat$","$A\flat$","$E\flat$","$B\flat$","$F$", "$C$","$G$","$D$","$A$","$E$","$H$","$F\sharp$"]++
-["$D\downarrow$","$A\downarrow$","$E\downarrow$","$H\downarrow$","$F\sharp\downarrow$"]++
-["$D\flat\uparrow$","$A\flat\uparrow$","$E\flat\uparrow$","$B\flat\uparrow$","$F\uparrow$"]
-;
+raganames=lang(
+  ["$D\flat$","$A\flat$","$E\flat$","$B$","$F$", "$C$","$G$","$D$","$A$","$E$","$H$","$F\sharp$"]++
+  ["$D\downarrow$","$A\downarrow$","$E\downarrow$","$H\downarrow$","$F\sharp\downarrow$"]++
+  ["$D\flat\uparrow$","$A\flat\uparrow$","$E\flat\uparrow$","$B\uparrow$","$F\uparrow$"]
+  ,
+  ["$D\flat$","$A\flat$","$E\flat$","$B\flat$","$F$", "$C$","$G$","$D$","$A$","$E$","$B$","$F\sharp$"]++
+  ["$D\downarrow$","$A\downarrow$","$E\downarrow$","$B\downarrow$","$F\sharp\downarrow$"]++
+  ["$D\flat\uparrow$","$A\flat\uparrow$","$E\flat\uparrow$","$B\flat\uparrow$","$F\uparrow$"]
+);
 
 ragahits=apply(hitkeys,(tunenote(#)));
 ragahits=apply(ragahits,(#/(2^(floor(log(#)/log(2))))));
