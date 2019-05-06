@@ -27,6 +27,8 @@
   <!--script type="text/javascript" src="http://science-to-touch.com/Music/sound/apps/common/js/Cindy.js"></script-->
 
 <script id="csinit" type="text/x-cindyscript">
+resetstamp=seconds();
+
 info=false;
 lang=0;
 lang(a,b):=if(lang==0,a,b);
@@ -594,6 +596,7 @@ fingeronkeycount=zerovector(180);
 
 
 callmidi(m,a,b):=(
+ resetstamp=seconds();
 
  if(m==144,fingeronkeycount_(a)=fingeronkeycount_(a)+1);  
  if(m==128,fingeronkeycount_(a)=max(0,fingeronkeycount_(a)-1)); 
@@ -642,8 +645,8 @@ callmidi1(m,a,b):=(
      linesh=mod(linesh+1,8); 
   ,
   if(tonehold &!beating,p1=0;p2=0,p1=random();p2=random);
-     playsin(play+beats*2,duration->toneduration, damp->tonedamping,line->linesh,harmonics->harm,partials->partials,amp->1,phaseshift->p2);
-     playsin(play-beats*2,duration->toneduration, damp->tonedamping,line->linesh+1,harmonics->harm,partials->partials,amp->1,phaseshift->p1);
+     playsin(play+beats*2,duration->toneduration, damp->tonedamping,line->linesh,harmonics->harm,partials->partials,amp->.6,phaseshift->p2);
+     playsin(play-beats*2,duration->toneduration, damp->tonedamping,line->linesh+1,harmonics->harm,partials->partials,amp->.6,phaseshift->p1);
      activelines=set(activelines++[linesh,linesh+1]);
      notesoflines_(linesh+1)=[a-60,1];
      notesoflines_(linesh+2)=[a-60,-1];
@@ -690,8 +693,8 @@ playfromline(x,ind):=(
      activelines=set(activelines++[ind*2+20]);
 
   ,
-     playsin(play+beats*2,duration->100, line->ind*2+20,harmonics->harm,partials->partials,amp->1);
-     playsin(play-beats*2,duration->100, line->ind*2+1+20,harmonics->harm,partials->partials,amp->1);
+     playsin(play+beats*2,duration->100, line->ind*2+20,harmonics->harm,partials->partials,amp->.6);
+     playsin(play-beats*2,duration->100, line->ind*2+1+20,harmonics->harm,partials->partials,amp->.6);
           activelines=set(activelines++[ind*2+20,ind*2+20+1]);
 
 
@@ -1019,8 +1022,81 @@ releasekeyboard(pos):=(
 );
 
 
+hardreset():=(
+ javascript("location.reload();");
+);
+    drohnereset():=(
+drohnesel=false ;
+playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->25);
+playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->26);
+playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->27);
+playsin(0,harmonics->apply(1..10,1),amp->0.1/3,line->28);
+playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->29);
+    );
+
+    reset():=(
+timbreselected=false;
+tuningselected=false;
+analyseselected=false;
+settimbre(timbre3);
+setphases(phases3);
+setanalysetype("dissonance");
+setanalyser("dissonance");
+settuningtype("western");
+settuning(tuningequal);
+setdampingdamp();
+apply(1..5,i,
+      buttons_2_i_4=(i==1);
+);
+
+apply(6..9,i,
+      buttons_2_i_4=(i==6);
+);
+ apply(1..5,i,
+          buttons_1_i_4=i==3;
+ );
+
+  apply(6..8,i,
+       buttons_1_i_4=i==7;
+  );
+    
+  apply(14..19,i,
+       buttons_2_i_4=i==19;
+  );
+
+  apply(1..length(buttons_3),i,
+          buttons_3_i_4=(i==1);
+   );
+PR.x=5+7;
+SR.x=5+7;  
+lang=0;
+info=false;
+Beats.x=bmin;
+beats=(Beats.x-bmin)/(bmax-bmin);
+beating=false;
+
+ftype=0;
+Diss.xy=[-5,0];
+drohnesel=false ;
+ragai=7;
+playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->25);
+playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->26);
+playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->27);
+playsin(0,harmonics->apply(1..10,1),amp->0.1/3,line->28);
+playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->29);
+
+SC1.xy=(5.3,1.5);
+
+SC.xy=(-2.05,1.55);
+FREEN.xy=(5.3,3);
+); 
+
+
+
 </script>
 <script id="csmultidown" type="text/x-cindyscript">
+    resetstamp=seconds();
+
   dictnumb=multiid()+1;
   pos=mouse(id->multiid()).xy;
   key=keyforposition(pos);
@@ -1090,6 +1166,8 @@ if(showequalizer,
 
 
 <script id="csmultidrag" type="text/x-cindyscript">
+    resetstamp=seconds();
+
   pos=mouse(id->multiid()).xy;
   key=keyforposition(pos);
   dictnumb=multiid()+1;
@@ -1147,6 +1225,7 @@ if(showequalizer,
 </script>
 
 <script id="csmousedown" type="text/x-cindyscript">
+  resetstamp=seconds();
     moving=true;
     resampled=false;
   pos=mouse().xy;
@@ -1302,14 +1381,19 @@ if(|mouse().xy,(-15,-3)|<.5,ftype=0;resample());
 if(|mouse().xy,(-15,-4)|<.5,ftype=1;resample());
 if(|mouse().xy,(-15,-5)|<.5,ftype=2;resample());
 
-if(|mouse().xy,(15.2,-5)|<.8,
+if(|mouse().xy,(15.2,-3)|<.6,
    lang=1-lang;
    setlang(); 
 );
 
 
-if(|mouse().xy,(15.2,-3)|<.8,
+if(|mouse().xy,(15.2,-4)|<.6,
    info=!info;
+);
+
+
+if(|mouse().xy,(15.2,-5)|<.8,
+   hardreset();
 );
 
 
@@ -1321,11 +1405,11 @@ if(|mouse().xy,(-5,7)|<1,drohnesel=!drohnesel);
 if(drohnesel,
 olddrohnesel=true;
 g=f1;
-  playsin(g*1.002/2,harmonics->apply(1..10,1)*.3,amp->0.2/4,line->25,duration->1000);
-  playsin(0.5*g/2,harmonics->apply(1..10,1)*.3,amp->0.2/4,line->26,duration->1000);
-  playsin(0.5*g*3/2*0.999/2,harmonics->apply(1..10,1)*.3,amp->0.2/4,line->27,duration->1000);
-  playsin(g*1.001,harmonics->apply(1..10,1)*.3,amp->0.1/4,line->28,duration->1000);
-  playsin(0.5*g*.998,harmonics->apply(1..10,1)*.3,amp->0.2/4,line->29,duration->1000);
+  playsin(g*1.002/2,harmonics->apply(1..10,1)*.3,amp->0.2/6,line->25,duration->1000);
+  playsin(0.5*g/2,harmonics->apply(1..10,1)*.3,amp->0.2/6,line->26,duration->1000);
+  playsin(0.5*g*3/2*0.999/2,harmonics->apply(1..10,1)*.3,amp->0.2/6,line->27,duration->1000);
+  playsin(g*1.001,harmonics->apply(1..10,1)*.3,amp->0.1/6,line->28,duration->1000);
+  playsin(0.5*g*.998,harmonics->apply(1..10,1)*.3,amp->0.2/6,line->29,duration->1000);
 
 );
 
@@ -1352,6 +1436,13 @@ if(tuningtype!="indian",
 </script>
 
 <script id="csdraw" type="text/x-cindyscript">
+ if(-resetstamp+seconds()>70,
+    reset();
+    resetstamp=seconds();
+ );
+ if(-resetstamp+seconds()>10,
+    drohnereset();
+ );
 
 showequalizer=timbreselected;
 
@@ -1389,9 +1480,10 @@ drawtext((-15.5,-4),"F",color->(1,1,1)*if(ftype==1,1,.3),size->20);
 drawtext((-15.5,-5),"-1/F",color->(1,1,1)*if(ftype==2,1,.3),size->20);
 
 
-drawtext((14.5,-5),"DE",color->(1,1,1)*if(lang==0,1,.5),size->20);
-drawtext((15.3,-5),"EN",color->(1,1,1)*if(lang==1,1,.5),size->20);
-drawtext((14.5,-3),"info",color->(1,1,1)*if(info,1,.5),size->25);
+drawtext((14.5,-3),"DE",color->(1,1,1)*if(lang==0,1,.5),size->20);
+drawtext((15.3,-3),"EN",color->(1,1,1)*if(lang==1,1,.5),size->20);
+drawtext((14.5,-4),"info",color->(1,1,1)*if(info,1,.5),size->25);
+drawtext((14.5,-5),"reset",color->(1,1,1)*.5,size->16);
 
 FR.y=13;
 FR.x=max(4,min(10,FR.x));
@@ -2335,7 +2427,6 @@ bmin=1+6;
 bmax=4+6;
 Beats.x=min(bmax,max(bmin,Beats.x));
 beats=(Beats.x-bmin)/(bmax-bmin);
-println("BEATS "+beats);
 beating=((beats~!=0)%tonehold);//TODO THis was a quickhack
 
 
@@ -2401,7 +2492,6 @@ currentbuttons=[];
 if(timbreselected,currentbuttons=buttons_1);
 if(tuningselected,currentbuttons=[]);
 if(analyseselected,currentbuttons=buttons_3);
-
 if(tuningselected,
    if(tuningtype=="western",
       currentbuttons=buttons_2_[1,2,3,4,5,6,7,8,9];
