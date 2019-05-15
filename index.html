@@ -638,15 +638,15 @@ callmidi1(m,a,b):=(
    if(!beating,
 
 
-     playsin(play,duration->toneduration, damp->tonedamping,line->linesh,harmonics->.2*harm,partials->partials,amp->1);
+     playsin(play,duration->toneduration, damp->tonedamping,line->linesh,harmonics->.5*harm,partials->partials,amp->1);
      activelines=set(activelines++[linesh]);
      linesoftones_a=[linesh];
      notesoflines_(linesh+1)=[a-60,1];
      linesh=mod(linesh+1,8);
   ,
   if(tonehold &!beating,p1=0;p2=0,p1=random();p2=random);
-     playsin(play+beats*2,duration->toneduration, damp->tonedamping,line->linesh,harmonics->.2*harm,partials->partials,amp->.6,phaseshift->p2);
-     playsin(play-beats*2,duration->toneduration, damp->tonedamping,line->linesh+1,harmonics->.2*harm,partials->partials,amp->.6,phaseshift->p1);
+     playsin(play+beats*2,duration->toneduration, damp->tonedamping,line->linesh,harmonics->.5*harm,partials->partials,amp->.6,phaseshift->p2);
+     playsin(play-beats*2,duration->toneduration, damp->tonedamping,line->linesh+1,harmonics->.5*harm,partials->partials,amp->.6,phaseshift->p1);
      activelines=set(activelines++[linesh,linesh+1]);
      notesoflines_(linesh+1)=[a-60,1];
      notesoflines_(linesh+2)=[a-60,-1];
@@ -659,7 +659,7 @@ callmidi1(m,a,b):=(
 
   if(tonehold,
     apply(linesoftones_a,l,
-       playsin(0,damp->10000,amp->1,harmonics->.2*[0,0,0,0,0,0,0,0],line->l);
+       playsin(0,damp->10000,amp->1,harmonics->.5*[0,0,0,0,0,0,0,0],line->l);
        activelines=activelines--[l];
        notesoflines_(l+1)=0;
 
@@ -675,8 +675,8 @@ callmidi1(m,a,b):=(
 
 stopfromline(ind):=(
 
-       playsin(0,amp->1,harmonics->.2*[0,0,0,0,0,0,0,0],line->ind*2+20);
-       playsin(0,amp->1,harmonics->.2*[0,0,0,0,0,0,0,0],line->ind*2+20+1);
+       playsin(0,amp->1,harmonics->.5*[0,0,0,0,0,0,0,0],line->ind*2+20);
+       playsin(0,amp->1,harmonics->.5*[0,0,0,0,0,0,0,0],line->ind*2+20+1);
        activelines=activelines--[ind*2+20,ind*2+20+1];
 
 );
@@ -689,12 +689,12 @@ playfromline(x,ind):=(
    if(!beating,
 
 
-     playsin(play,duration->100,line->ind*2+20,harmonics->.2*harm,partials->partials,amp->1);
+     playsin(play,duration->100,line->ind*2+20,harmonics->.5*harm,partials->partials,amp->1);
      activelines=set(activelines++[ind*2+20]);
 
   ,
-     playsin(play+beats*2,duration->100, line->ind*2+20,harmonics->.2*harm,partials->partials,amp->.6);
-     playsin(play-beats*2,duration->100, line->ind*2+1+20,harmonics->.2*harm,partials->partials,amp->.6);
+     playsin(play+beats*2,duration->100, line->ind*2+20,harmonics->.5*harm,partials->partials,amp->.6);
+     playsin(play-beats*2,duration->100, line->ind*2+1+20,harmonics->.5*harm,partials->partials,amp->.6);
           activelines=set(activelines++[ind*2+20,ind*2+20+1]);
 
 
@@ -1027,11 +1027,11 @@ hardreset():=(
 );
     drohnereset():=(
 drohnesel=false ;
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->25);
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->26);
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->27);
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.1/3,line->28);
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->29);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->25);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->26);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->27);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.1/3,line->28);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->29);
     );
 
     reset():=(
@@ -1079,11 +1079,11 @@ ftype=0;
 Diss.xy=[-5,0];
 drohnesel=false ;
 ragai=7;
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->25);
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->26);
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->27);
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.1/3,line->28);
-playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->29);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->25);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->26);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->27);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.1/3,line->28);
+playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->29);
 
 SC1.xy=(5.3,1.5);
 
@@ -1211,10 +1211,10 @@ if(showequalizer,
 
       play=tunenote(a)*f1;
 
-      playsin(play+b*beats*2,line->l,harmonics->.2*harm,partials->partials);
+      playsin(play+b*beats*2,line->l,harmonics->.5*harm,partials->partials);
 
 ,
-        playsin(line->l,harmonics->.2*harm,partials->partials);
+        playsin(line->l,harmonics->.5*harm,partials->partials);
 );
       );
 
@@ -1405,11 +1405,11 @@ if(|mouse().xy,(-5,7)|<1,drohnesel=!drohnesel);
 if(drohnesel,
 olddrohnesel=true;
 g=f1;
-  playsin(g*1.002/2,harmonics->.2*apply(1..10,1)*.3,amp->0.2/6,line->25,duration->1000);
-  playsin(0.5*g/2,harmonics->.2*apply(1..10,1)*.3,amp->0.2/6,line->26,duration->1000);
-  playsin(0.5*g*3/2*0.999/2,harmonics->.2*apply(1..10,1)*.3,amp->0.2/6,line->27,duration->1000);
-  playsin(g*1.001,harmonics->.2*apply(1..10,1)*.3,amp->0.1/6,line->28,duration->1000);
-  playsin(0.5*g*.998,harmonics->.2*apply(1..10,1)*.3,amp->0.2/6,line->29,duration->1000);
+  playsin(g*1.002/2,harmonics->.5*apply(1..10,1)*.3,amp->0.2/6,line->25,duration->1000);
+  playsin(0.5*g/2,harmonics->.5*apply(1..10,1)*.3,amp->0.2/6,line->26,duration->1000);
+  playsin(0.5*g*3/2*0.999/2,harmonics->.5*apply(1..10,1)*.3,amp->0.2/6,line->27,duration->1000);
+  playsin(g*1.001,harmonics->.5*apply(1..10,1)*.3,amp->0.1/6,line->28,duration->1000);
+  playsin(0.5*g*.998,harmonics->.5*apply(1..10,1)*.3,amp->0.2/6,line->29,duration->1000);
 
 );
 
@@ -1422,16 +1422,16 @@ if(|mouse().xy,(10.5+.75,8.7+.75)|<.5,up());
 
 if(!drohnesel&olddrohnesel,
 olddrohnesel=false;
-  playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->25);
-  playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->26);
-  playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->27);
-  playsin(0,harmonics->.2*apply(1..10,1),amp->0.1/3,line->28);
-  playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->29);
+  playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->25);
+  playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->26);
+  playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->27);
+  playsin(0,harmonics->.5*apply(1..10,1),amp->0.1/3,line->28);
+  playsin(0,harmonics->.5*apply(1..10,1),amp->0.2/3,line->29);
 );
 
 /*
 if(tuningtype!="indian",
-    playsin(0,duration->0, line->25,harmonics->.2*[1],partials->[1],amp->.3);
+    playsin(0,duration->0, line->25,harmonics->.5*[1],partials->[1],amp->.3);
 );*/
 </script>
 
