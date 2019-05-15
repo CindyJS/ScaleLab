@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    
+
     <title>Multi Music Tool</title>
     <style type="text/css">
         * {
@@ -245,9 +245,9 @@ apply(1..length(buttons),i,
       box=[b_1,b_1+(buttonwidth,0),b_1+(buttonwidth,buttonwidth*asp_2/asp_1),b_1+(0,buttonwidth*asp_2/asp_1)];
     ,
       box=[b_1,b_1+(3,0),b_1+(3,.8),b_1+(0,0.8)];
-    );  
-    buttons_i_j=buttons_i_j++[box,false]; 
-  );  
+    );
+    buttons_i_j=buttons_i_j++[box,false];
+  );
 );
 
 buttons_1_3_4=true;
@@ -341,7 +341,7 @@ tuningmittel=(729/64/(kk^(3/2))/8,2187/128/(kk^(7/4))/16,25/16,8/27*kk^(3/4)*4,4
 
 ///....indian tuning
 
-//     1 2       3     4    5   6     7   8   9     10  11    12    13      14  15     16  17  18    19   20  21   22 
+//     1 2       3     4    5   6     7   8   9     10  11    12    13      14  15     16  17  18    19   20  21   22
 //     S,r1,     r2,   R1,  R2, g1,   g2, G1, G2,   M1, M2,   m1,   m2,     P,  d1,    d2, D1, D2,   n1,  n2, N1,  N2,     S
 indie=(1,256/243,16/15,10/9,9/8,32/27,6/5,5/4,81/64,4/3,27/20,45/32,729/512,3/2,128/81,8/5,5/3,27/16,16/9,9/5,15/8,243/128,2);
 
@@ -462,7 +462,7 @@ shrutis="S,r1,r2,R1,R2,g1,g2,G1,G2,M1,M2,m1,m2,P,d1,d2,D1,D2,n1,n2,N1,N2,S'";
 tuneraga(str):=(
    shrsel=apply(1..23,false);
    apply(1..22,i,shrsel_i=(indexof(str,shrnames_i)!=0));
-   shrsel_23=shrsel_1; 
+   shrsel_23=shrsel_1;
    tuneragasel();
 );
 
@@ -539,20 +539,20 @@ tunenote(note):=(
 if(tuningtype=="western",
 
      octave=floor(note/12+.001);
-     nkey=note-octave*12;     
+     nkey=note-octave*12;
      erg=((tuning_(round(nkey+1)))*2^octave)^ssca;
 );
 if((tuningtype=="theory") % (tuningtype=="indian")% (tuningtype=="gamelan")% (tuningtype=="free"),
      erg=0;
      octave=floor(note/12+.001);
-     nkey=note-octave*12; 
+     nkey=note-octave*12;
      nnkey= keytoind_(nkey+1);
      if(nnkey!=0,
        nkey = nnkey+7*octave-1;
     //   println(note+" "+octave+" "+nkey);
 
        octave=floor(nkey/(length(sctones))+.001);
-       scind=nkey-octave*(length(sctones));  
+       scind=nkey-octave*(length(sctones));
 
        erg=(2^(octave+sctones_(scind+1)))^ssca;
        );
@@ -598,17 +598,17 @@ fingeronkeycount=zerovector(180);
 callmidi(m,a,b):=(
  resetstamp=seconds();
 
- if(m==144,fingeronkeycount_(a)=fingeronkeycount_(a)+1);  
- if(m==128,fingeronkeycount_(a)=max(0,fingeronkeycount_(a)-1)); 
-  
+ if(m==144,fingeronkeycount_(a)=fingeronkeycount_(a)+1);
+ if(m==128,fingeronkeycount_(a)=max(0,fingeronkeycount_(a)-1));
+
  if(m==144 & fingeronkeycount_(a)==1, callmidi1(m,a,b));
  if(m==128 & fingeronkeycount_(a)==0, callmidi1(m,a,b));
 );
 
 
 callmidi1(m,a,b):=(
- if(m==144,hitkeys=set(hitkeys++[a-60]));  
- if(m==128,hitkeys=set(hitkeys--[a-60]));  
+ if(m==144,hitkeys=set(hitkeys++[a-60]));
+ if(m==128,hitkeys=set(hitkeys--[a-60]));
  mdia=a;
  mdib=b;
  mdim=m;
@@ -638,15 +638,15 @@ callmidi1(m,a,b):=(
    if(!beating,
 
 
-     playsin(play,duration->toneduration, damp->tonedamping,line->linesh,harmonics->harm,partials->partials,amp->1);
+     playsin(play,duration->toneduration, damp->tonedamping,line->linesh,harmonics->.2*harm,partials->partials,amp->1);
      activelines=set(activelines++[linesh]);
      linesoftones_a=[linesh];
      notesoflines_(linesh+1)=[a-60,1];
-     linesh=mod(linesh+1,8); 
+     linesh=mod(linesh+1,8);
   ,
   if(tonehold &!beating,p1=0;p2=0,p1=random();p2=random);
-     playsin(play+beats*2,duration->toneduration, damp->tonedamping,line->linesh,harmonics->harm,partials->partials,amp->.6,phaseshift->p2);
-     playsin(play-beats*2,duration->toneduration, damp->tonedamping,line->linesh+1,harmonics->harm,partials->partials,amp->.6,phaseshift->p1);
+     playsin(play+beats*2,duration->toneduration, damp->tonedamping,line->linesh,harmonics->.2*harm,partials->partials,amp->.6,phaseshift->p2);
+     playsin(play-beats*2,duration->toneduration, damp->tonedamping,line->linesh+1,harmonics->.2*harm,partials->partials,amp->.6,phaseshift->p1);
      activelines=set(activelines++[linesh,linesh+1]);
      notesoflines_(linesh+1)=[a-60,1];
      notesoflines_(linesh+2)=[a-60,-1];
@@ -657,9 +657,9 @@ callmidi1(m,a,b):=(
  );
  if(m==128,
 
-  if(tonehold, 
+  if(tonehold,
     apply(linesoftones_a,l,
-       playsin(0,damp->10000,amp->1,harmonics->[0,0,0,0,0,0,0,0],line->l);
+       playsin(0,damp->10000,amp->1,harmonics->.2*[0,0,0,0,0,0,0,0],line->l);
        activelines=activelines--[l];
        notesoflines_(l+1)=0;
 
@@ -675,8 +675,8 @@ callmidi1(m,a,b):=(
 
 stopfromline(ind):=(
 
-       playsin(0,amp->1,harmonics->[0,0,0,0,0,0,0,0],line->ind*2+20);
-       playsin(0,amp->1,harmonics->[0,0,0,0,0,0,0,0],line->ind*2+20+1);
+       playsin(0,amp->1,harmonics->.2*[0,0,0,0,0,0,0,0],line->ind*2+20);
+       playsin(0,amp->1,harmonics->.2*[0,0,0,0,0,0,0,0],line->ind*2+20+1);
        activelines=activelines--[ind*2+20,ind*2+20+1];
 
 );
@@ -689,12 +689,12 @@ playfromline(x,ind):=(
    if(!beating,
 
 
-     playsin(play,duration->100,line->ind*2+20,harmonics->harm,partials->partials,amp->1);
+     playsin(play,duration->100,line->ind*2+20,harmonics->.2*harm,partials->partials,amp->1);
      activelines=set(activelines++[ind*2+20]);
 
   ,
-     playsin(play+beats*2,duration->100, line->ind*2+20,harmonics->harm,partials->partials,amp->.6);
-     playsin(play-beats*2,duration->100, line->ind*2+1+20,harmonics->harm,partials->partials,amp->.6);
+     playsin(play+beats*2,duration->100, line->ind*2+20,harmonics->.2*harm,partials->partials,amp->.6);
+     playsin(play-beats*2,duration->100, line->ind*2+1+20,harmonics->.2*harm,partials->partials,amp->.6);
           activelines=set(activelines++[ind*2+20,ind*2+20+1]);
 
 
@@ -876,7 +876,7 @@ bruch(x,cf):=
 if(cf_(-1)=="*",
   "$"+format(x,2)+"$",
   erg=bruch1(cf);
-  "$"+erg_1+"\over"+erg_2+"$"; 
+  "$"+erg_1+"\over"+erg_2+"$";
 );
 
 myguess(x):=(
@@ -1027,11 +1027,11 @@ hardreset():=(
 );
     drohnereset():=(
 drohnesel=false ;
-playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->25);
-playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->26);
-playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->27);
-playsin(0,harmonics->apply(1..10,1),amp->0.1/3,line->28);
-playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->29);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->25);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->26);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->27);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.1/3,line->28);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->29);
     );
 
     reset():=(
@@ -1059,7 +1059,7 @@ apply(6..9,i,
   apply(6..8,i,
        buttons_1_i_4=i==7;
   );
-    
+
   apply(14..19,i,
        buttons_2_i_4=i==19;
   );
@@ -1068,7 +1068,7 @@ apply(6..9,i,
           buttons_3_i_4=(i==1);
    );
 PR.x=5+7;
-SR.x=5+7;  
+SR.x=5+7;
 lang=0;
 info=false;
 Beats.x=bmin;
@@ -1079,17 +1079,17 @@ ftype=0;
 Diss.xy=[-5,0];
 drohnesel=false ;
 ragai=7;
-playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->25);
-playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->26);
-playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->27);
-playsin(0,harmonics->apply(1..10,1),amp->0.1/3,line->28);
-playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->29);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->25);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->26);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->27);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.1/3,line->28);
+playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->29);
 
 SC1.xy=(5.3,1.5);
 
 SC.xy=(-2.05,1.55);
 FREEN.xy=(5.3,3);
-); 
+);
 
 
 
@@ -1206,15 +1206,15 @@ if(showequalizer,
      apply(activelines,l,
 
      if(true,
-       
+
       [a,b]=notesoflines_(l+1);
 
       play=tunenote(a)*f1;
 
-      playsin(play+b*beats*2,line->l,harmonics->harm,partials->partials);
+      playsin(play+b*beats*2,line->l,harmonics->.2*harm,partials->partials);
 
 ,
-        playsin(line->l,harmonics->harm,partials->partials);
+        playsin(line->l,harmonics->.2*harm,partials->partials);
 );
       );
 
@@ -1285,7 +1285,7 @@ if(showequalizer,
      if(hit==4,settuningtype("theory"));
      if(hit==5,settuningtype("free"));
 
-    
+
      if(tuningtype=="western",
         if(contains(6..9,hit),
 
@@ -1371,8 +1371,8 @@ if(tuningselected,
 
    if(|mouse().xy,(13,2)|<1.5,
      PR.x=5+7;
-     SR.x=5+7;   
- );  
+     SR.x=5+7;
+ );
 );
 
 
@@ -1383,7 +1383,7 @@ if(|mouse().xy,(-15,-5)|<.5,ftype=2;resample());
 
 if(|mouse().xy,(15.2,-3)|<.6,
    lang=1-lang;
-   setlang(); 
+   setlang();
 );
 
 
@@ -1405,11 +1405,11 @@ if(|mouse().xy,(-5,7)|<1,drohnesel=!drohnesel);
 if(drohnesel,
 olddrohnesel=true;
 g=f1;
-  playsin(g*1.002/2,harmonics->apply(1..10,1)*.3,amp->0.2/6,line->25,duration->1000);
-  playsin(0.5*g/2,harmonics->apply(1..10,1)*.3,amp->0.2/6,line->26,duration->1000);
-  playsin(0.5*g*3/2*0.999/2,harmonics->apply(1..10,1)*.3,amp->0.2/6,line->27,duration->1000);
-  playsin(g*1.001,harmonics->apply(1..10,1)*.3,amp->0.1/6,line->28,duration->1000);
-  playsin(0.5*g*.998,harmonics->apply(1..10,1)*.3,amp->0.2/6,line->29,duration->1000);
+  playsin(g*1.002/2,harmonics->.2*apply(1..10,1)*.3,amp->0.2/6,line->25,duration->1000);
+  playsin(0.5*g/2,harmonics->.2*apply(1..10,1)*.3,amp->0.2/6,line->26,duration->1000);
+  playsin(0.5*g*3/2*0.999/2,harmonics->.2*apply(1..10,1)*.3,amp->0.2/6,line->27,duration->1000);
+  playsin(g*1.001,harmonics->.2*apply(1..10,1)*.3,amp->0.1/6,line->28,duration->1000);
+  playsin(0.5*g*.998,harmonics->.2*apply(1..10,1)*.3,amp->0.2/6,line->29,duration->1000);
 
 );
 
@@ -1422,16 +1422,16 @@ if(|mouse().xy,(10.5+.75,8.7+.75)|<.5,up());
 
 if(!drohnesel&olddrohnesel,
 olddrohnesel=false;
-  playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->25);
-  playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->26);
-  playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->27);
-  playsin(0,harmonics->apply(1..10,1),amp->0.1/3,line->28);
-  playsin(0,harmonics->apply(1..10,1),amp->0.2/3,line->29);
+  playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->25);
+  playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->26);
+  playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->27);
+  playsin(0,harmonics->.2*apply(1..10,1),amp->0.1/3,line->28);
+  playsin(0,harmonics->.2*apply(1..10,1),amp->0.2/3,line->29);
 );
 
 /*
 if(tuningtype!="indian",
-    playsin(0,duration->0, line->25,harmonics->[1],partials->[1],amp->.3);
+    playsin(0,duration->0, line->25,harmonics->.2*[1],partials->[1],amp->.3);
 );*/
 </script>
 
@@ -1452,7 +1452,7 @@ apply(equalizer,
 );
 
 
-fillpoly([[-16,-6],[16,-6],[16,12],[-16,12]],color->(.1,0,0));  
+fillpoly([[-16,-6],[16,-6],[16,12],[-16,12]],color->(.1,0,0));
 
 //drawtext((0,2),activelines,color->(1,1,1),size->20);
 //drawtext((-6,1),notesoflines,color->(1,1,1),size->20);
@@ -1648,17 +1648,17 @@ if(analyser=="circle",
 
    apply(0..11,
       w=#*deltaw;
-      draw(center1+(sin(w),cos(w))*rad, 
+      draw(center1+(sin(w),cos(w))*rad,
            center1+(sin(w+7*deltaw),cos(w+7*deltaw))*rad,
            color->(1,1,1)*.5);
-      draw(center2+(sin(w),cos(w))*rad, 
+      draw(center2+(sin(w),cos(w))*rad,
            center2+(sin(w+7*deltaw),cos(w+7*deltaw))*rad,
            color->(1,1,1)*.5);
    );
    htpolygon=apply(tonset,w=#*deltaw;center1+(sin(w),cos(w))*rad);
    fillpoly(htpolygon,color->(1,.8,.5),alpha->.7);
    drawpoly(htpolygon,color->(1,1,1),size->3);
- 
+
    tonset2=sort(apply(tonset,mod(7*#,12)));
    quipolygon=apply(tonset2,w=#*deltaw;center2+(sin(w),cos(w))*rad);
    fillpoly(quipolygon,color->(1,.8,.5),alpha->.7);
@@ -1688,10 +1688,10 @@ if(analyser=="ratios",
   if(length(tposs)>1,
     apply(tposs,
        draw((#,0),(#,1.5),color->(.5,1,.5),size->2);
-     ); 
+     );
      apply(tposs,
        draw((#,1.5),color->(.5,1,.5),size->3);
-     ); 
+     );
      draw((tposs_(1),1.5),(tposs_(-1),1.5),color->(.5,1,.5),size->2);
     );
 
@@ -1699,7 +1699,7 @@ if(analyser=="ratios",
        erg=myguess((freqs_(#+1))/reffreq,(freqs_(#))/reffreq);
        ergpos=((tposs_(#+1))+(tposs_(#)))/2;
        drawtext((ergpos,1.9),erg,color->(1,1,1),size->40,align->"center");
-     );  
+     );
   if(length(tposs)>2,
      draw((tposs_(1),3.2),(tposs_(-1),3.2),color->(.5,1,.5)*.8,size->2);
      draw((tposs_(1),1.5),(tposs_(1),3.2),color->(.5,1,.5)*.8,size->2);
@@ -1716,8 +1716,8 @@ if(analyser=="ratios",
      t0=movorig(1000);
      t1=movorig(-12);
      apply(tposs,t,
-        plot(.5*sin((x-t0)*2*pi/|t,t0|)*|t,t0|*.2,color->(1,.8,.5),stop->t0,start->t1); 
-        plot(.5*sin((x-t0)*2*pi/|t,t0|)*|t,t0|*.2,color->(1,.8,.5),stop->t0,start->t,size->3); 
+        plot(.5*sin((x-t0)*2*pi/|t,t0|)*|t,t0|*.2,color->(1,.8,.5),stop->t0,start->t1);
+        plot(.5*sin((x-t0)*2*pi/|t,t0|)*|t,t0|*.2,color->(1,.8,.5),stop->t0,start->t,size->3);
         draw((t,0));
      );
   );
@@ -1744,9 +1744,9 @@ if(analyser=="wave",
     sh=time;
     sh=floor(sh*freqs_1*basefr)/freqs_1/basefr;
     if(length(freqs)>1,
-       erg=sort(-20..00,shdiff=|(sh+#/freqs_1/basefr)*freqs_2*basefr,oldsh*freqs_2*basefr|;|shdiff-round(shdiff)|);  
+       erg=sort(-20..00,shdiff=|(sh+#/freqs_1/basefr)*freqs_2*basefr,oldsh*freqs_2*basefr|;|shdiff-round(shdiff)|);
        oldsh=erg_1/freqs_1/basefr+sh;
-       sh=oldsh; 
+       sh=oldsh;
     );
     prevsh=sh;
     oldsh=sh;
@@ -1774,7 +1774,7 @@ if(analyser=="wave",
      );
 
      );
-  
+
 );
 
 // END WAVE FUNCTIONS
@@ -1965,9 +1965,9 @@ if(i>0,
      pos3=tonnetzpos(i,j+1);
      in3=contains(hitlist,tind3);
 
-    
 
-       
+
+
     if(i>0&in1&in2&in3,fillpoly([pos1,pos2,pos3],color->(.5,1,.5)*.6));
 
 
@@ -1995,10 +1995,10 @@ apply(0..12,i,
      in3=contains(hitlist,tind3);
 
     );
-    
-    
 
-        
+
+
+
     if(i<12&j<3&in1&in2&in3,fillpoly([pos1,pos2,pos3],color->(.5,.5,1)*.6));
 
     draw(pos1,pos2,color->netzcol(quotnote(tind1,tind2))*if(in1&in2,1,.5),size->6);//quint
@@ -2012,9 +2012,9 @@ apply(0..12,i,
       draw(pos2,pos3,color->netzcol(quotnote(tind3,tind2))*if(in2&in3,1,.5),size->6);//klterz
 
    //     drawtext((pos2+pos3)/2+(-.2,.1),quotnote(tind3,tind2),color->(1,1,1));
- 
+
     );
-  );  
+  );
 
 
 );
@@ -2187,7 +2187,7 @@ drawcircle(glmid,glrad,color->(1,1,1)*.5);
 
      apply(marks,m,
         if(|d1-m_1|<m_2,
-           draw((cos(w1),sin(w1))*glrad+glmid, 
+           draw((cos(w1),sin(w1))*glrad+glmid,
                 (cos(w2),sin(w2))*glrad+glmid,
                  color->m_4,size->((m_2-|d1-m_1|)/m_2)^2*4 ) ;
          );
@@ -2200,7 +2200,7 @@ drawcircle(glmid,glrad,color->(1,1,1)*.5);
 
 
      );
-    
+
 
 
   );
@@ -2528,7 +2528,7 @@ apply(currentbuttons,b,
     drawimage(box_1,box_2,tok_1,alpha->if(selected,1,.6));
     drawtext(box_1+(0,.3)+(1.15,0),tok_2,align->"center",size->18,color->(1,1,1),alpha->if(selected,1,.6));
   ,
-  
+
     fillpoly(box,color->if(selected,(1,1,1)*.3,(1,1,1)*.4));
     drawpoly(box,color->(1,1,1),size->if(selected,3,1));
     drawtext(box_1+(.2,.3),b_2,size->20,color->(1,1,1));
@@ -2572,7 +2572,7 @@ if(info ,
 
 if(!timbreselected&!tuningselected&!analyseselected,
 infobox([[-15,4],[-10,4],[-10,6],[-15,6]],(-14,9),
-"This gives acces to all 
+"This gives acces to all
 kinds of different tunings.
 Elaborate submenus show up.",
 "Finde hier Zugang zu
@@ -2580,7 +2580,7 @@ jeglicher Art von Stimmung.
 Viele Untermenus erscheinen!");
 
 infobox([[-9,5],[-4,5],[-4,7],[-9,7]],(-10,9),
-"Analyse wave forms and  
+"Analyse wave forms and
 frequency aspects here.
 Lots of insight on music.",
 "Analysiere hier Frequenz,
@@ -2589,15 +2589,15 @@ Tiefe Einblicke warten.");
 
 
 infobox([[-4,8],[1,8],[1,10],[-4,10]],(-7,10),
-"Sound characteristics can  
-be changed here. 
+"Sound characteristics can
+be changed here.
 Spectrum, decay, beating....",
 "Gestalte den Klang nach
 eigenen Vorstellungen.
 Spektrum, Decay, Vibrato...");
 
 infobox([[-15.5,-1.5],[-10.5,-1.5],[-10.5,0.5],[-15.5,0.5]],(-15,-2.5),
-"Change the mapping to 
+"Change the mapping to
 the tone line.
 log(f), f, 1/f all make sense.",
 "Verändere die Zuordnung
@@ -2615,7 +2615,7 @@ einem Midi Keyboard.
 Erschaffe eigene Musik!");
 
 infobox([[7,2],[12,2],[12,4],[7,4]],(7,0),
-"Tab the line to get 
+"Tab the line to get
 continuous sounds.
 Even multitouch works",
 "Nutze die Linie für
@@ -2659,7 +2659,7 @@ Unterster Button für 'nicht'.");
 
 
 infobox([[0,2],[5,2],[5,4],[0,4]],(4.5,9),
-"Select you personal 
+"Select you personal
 spektrum of overtones.
 Experiment with sound.",
 "Wähle ein individuelles
@@ -2668,7 +2668,7 @@ Experimentiere mit Klängen.");
 
 
 infobox([[3,-1],[8,-1],[8,1],[3,1]],Beats-(0,.5),
-"Create beats by splitting  
+"Create beats by splitting
 the tone in two nearby.
 This makes rich vibrato.",
 "Teile den Ton in zwei,
@@ -2676,7 +2676,7 @@ die ihm nah sind.
 Hörbares Vibrato entsteht.");
 
 infobox([[7,2],[12,2],[12,4],[7,4]],SR-(.5,.5),
-"Spread the frequencies  
+"Spread the frequencies
 of your chosen scale.
 Interesting but hard for ears.",
 "Spreize die Frequenzen
@@ -2684,7 +2684,7 @@ der gewählten Tonleiter.
 Interessant, aber schräg.");
 
 infobox([[10.5,-1],[15.5,-1],[15.5,1],[10.5,1]],PR-(0,.2),
-"Spread spectrum of   
+"Spread spectrum of
 your overtones.
 Bell sounds emerge.",
 "Spreize das Spektrum
@@ -2695,7 +2695,7 @@ Fast wie Glockengeläut.");
 
 if(analyseselected,
 infobox([[-15.5,-3],[-10.5,-3],[-10.5,-1],[-15.5,-1]],(-14,3.8),
-"Two tones on the x and y   
+"Two tones on the x and y
 channels of an oscillograph.
 Create images from sound.",
 "Zwei Töne an
@@ -2713,16 +2713,16 @@ Brüche und Wurzeln.");
 
 
 infobox([[-9,3],[-4,3],[-4,5],[-9,5]],(-13.2,6.3),
-"Sound is air movement in time.   
+"Sound is air movement in time.
 See the waves of the sound
 generated by your play.",
-"Töne und Klänge sind 
+"Töne und Klänge sind
 Schwingungen in der Luft.
 Musik schlägt Wellen.");
 
 
 infobox([[-8,6],[-3,6],[-3,8],[-8,8]],(-11,7),
-"This curve indicates how    
+"This curve indicates how
 dissonant a tone is vs. another.
 The middle C is the reference.",
 "Die Kurve zeigt, wie
@@ -2762,7 +2762,7 @@ Nimmt zwei tiefste Töne auf.");
 if(tuningselected,
 if(analyser=="tonnetz",
 infobox([[-15.5,-1.5],[-10.5,-1.5],[-10.5,0.5],[-15.5,0.5]],(-13,2.5),
-"Select from different  
+"Select from different
 classical tuning systems.
 Small changes–big differences.",
 "Wähle aus verschiedenen
@@ -2770,7 +2770,7 @@ klassischen Stimmungen aus.
 Kleine Änderung–großer Effekt.");
 
 infobox([[-6,-1.5],[-1,-1.5],[-1,0.5],[-6,0.5]],(-3.5,3.2),
-"The tonnetz helps to 
+"The tonnetz helps to
 understand our tone system.
 Triangles are chords.",
 "Nutze das Tonnetz, um das
@@ -2782,7 +2782,7 @@ infobox([[3,-.5],[8,-.5],[8,1.5],[3,1.5]],(5,3.2),
 "You can play here by
 pressing circles and edges.
 Colors indicate dissonance.",
-"Nutze die Kreise und 
+"Nutze die Kreise und
 Kanten, um Musik zu machen.
 Farben zeigen Verstimmung");
 
@@ -2790,15 +2790,15 @@ Farben zeigen Verstimmung");
 
 if(analyser=="raga",
 infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
-"Here you see different  
+"Here you see different
 intervals in a selection of tones.
 The fingerprint of a scale.",
-"Beobachte Intervalle 
+"Beobachte Intervalle
 aus einer Gruppe von Tönen.
 Fingerabdruck einer Tonleiter.");
 
 infobox([[-8.5,1.5],[-3.5,1.5],[-3.5,3.5],[-8.5,3.5]],(-5.2,6),
-"Indian Ragas refer 
+"Indian Ragas refer
 to a central chord.
 Turn on bordun tone here.",
 "Indische Ragas beziehen sich
@@ -2829,10 +2829,10 @@ Vielfältiger als Dur und Moll.");
 
 if(analyser=="gamelan",
 infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
-"Here you see different  
+"Here you see different
 intervals in a selection of tones.
 The fingerprint of a scale.",
-"Beobachte Intervalle 
+"Beobachte Intervalle
 aus einer Gruppe von Tönen.
 Fingerabdruck einer Tonleiter.");
 
@@ -2853,16 +2853,16 @@ Die Schönheit der Pentatonik.");
 
 if(analyser=="scales",
 infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
-"Here you see different  
+"Here you see different
 intervals in a selection of tones.
 The fingerprint of a scale.",
-"Beobachte Intervalle 
+"Beobachte Intervalle
 aus einer Gruppe von Tönen.
 Fingerabdruck einer Tonleiter.");
 
 
 infobox([[-2,-1.5],[3,-1.5],[3,0.5],[-2,0.5]],SC-(0,.5),
-"The position of this point 
+"The position of this point
 determines the scale.
 Free your ears for the new.",
 "Die Position dieses Punktes
@@ -2883,19 +2883,19 @@ Weniger ist mehr!");
 
 if(analyser=="free",
 infobox([[-14.5,-1.5],[-9.5,-1.5],[-9.5,0.5],[-14.5,0.5]],(-11.5,2),
-"Here you see different  
+"Here you see different
 intervals in a selection of tones.
 The fingerprint of a scale.",
-"Beobachte Intervalle 
+"Beobachte Intervalle
 aus einer Gruppe von Tönen.
 Fingerabdruck einer Tonleiter.");
 
 
 infobox([[-4,-1.5],[1,-1.5],[1,0.5],[-4,0.5]],(-1,2),
-"Here you can completely  
+"Here you can completely
 freely design a scale.
 The burdon of freedom.",
-"Erstelle hier eine 
+"Erstelle hier eine
 Tonleiter nach Geschmack.
 Die Qual der Wahl.");
 
@@ -3056,7 +3056,7 @@ var cdy = CindyJS({
     beat2:"icons/BeatT2.png",
     rightarrow:"icons/Right.png",
     caution:"icons/Caution.png"
-   
+
   },
   ports: [{
     id: "CSCanvas",
@@ -3088,7 +3088,7 @@ var cdy = CindyJS({
       navigator.requestMIDIAccess().then( onSuccess, onFailure ); //get midi access
     }
 
-    function onSuccess( access ) { 
+    function onSuccess( access ) {
 
       midi = access;
       var inputs = midi.inputs;
