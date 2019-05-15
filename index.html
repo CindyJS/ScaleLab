@@ -1205,7 +1205,7 @@ if(showequalizer,
      if(hitkeys==[],activelines=[];notesoflines=zerovector(30));
      apply(activelines,l,
 
-     if(true,
+     if(false,
 
       [a,b]=notesoflines_(l+1);
 
@@ -1214,6 +1214,7 @@ if(showequalizer,
       playsin(play+b*beats*2,line->l,harmonics->.3*harm,partials->partials);
 
 ,
+
         playsin(line->l,harmonics->.3*harm,partials->partials);
 );
       );
